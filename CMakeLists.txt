@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.30)
+project(mimicry)
+set(CMAKE_CXX_STANDARD 11)
+add_executable(mimicry WIN32 main.cpp)
+if (MINGW)
+    target_link_options(mimicry PRIVATE -municode)
+endif ()
