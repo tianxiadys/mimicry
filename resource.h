@@ -9,3 +9,4 @@
 #define ID_D1_ENCRYPT    1004
 #define ID_D1_DECRYPT    1005
 #define ID_D1_CONSOLE    1006
+#define RC_D1_WND        MAKEINTRESOURCEW(ID_D1_WND)

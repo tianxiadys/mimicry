@@ -1,36 +1,39 @@
-#include <windows.h>
-#include <cwchar>
-#include "rc4.hpp"
 #include "resource.h"
 
-INT_PTR CALLBACK DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+void buttonShowPassword(HWND hWnd)
 {
-    // switch (message)
-    // {
-    // case WM_INITDIALOG: // 对话框初始化
-    //     return TRUE;
-    //
-    // case WM_COMMAND: // 按钮事件
-    //     switch (LOWORD(wParam))
-    //     {
-    //     case IDOK: // OK 按钮
-    //         EndDialog(hDlg, IDOK);
-    //         return TRUE;
-    //     case IDCANCEL: // Cancel 按钮
-    //         EndDialog(hDlg, IDCANCEL);
-    //         return TRUE;
-    //     }
-    //     break;
-    //
-    // case WM_CLOSE: // 关闭对话框
-    //     EndDialog(hDlg, 0);
-    //     return TRUE;
-    // }
-    return FALSE;
+    const auto hPassword = GetDlgItem(hWnd, ID_D1_PASSWORD);
+    const auto isShow = IsDlgButtonChecked(hWnd, ID_D1_SHOW);
+    SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
+    InvalidateRect(hPassword, nullptr, 1);
 }
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int)
+void messageCommand(HWND hWnd, UINT srcId)
 {
-    DialogBox(hInstance, MAKEINTRESOURCE(ID_D1_WND), NULL, DialogProc);
+    switch (srcId)
+    {
+    case ID_D1_SHOW:
+        buttonShowPassword(hWnd);
+        break;
+    }
+}
+
+INT_PTR CALLBACK dialogMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_CLOSE:
+        EndDialog(hWnd, 0);
+        break;
+    case WM_COMMAND:
+        messageCommand(hWnd, wParam & 0xFFFF);
+        break;
+    }
+    return 0;
+}
+
+int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
+{
+    DialogBoxParamW(nullptr, RC_D1_WND, nullptr, dialogMain, 0);
     return 0;
 }
