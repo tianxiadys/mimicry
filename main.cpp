@@ -31,6 +31,6 @@ INT_PTR CALLBACK DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int)
 {
-    DialogBox(hInstance, MAKEINTRESOURCE(ID_DIALOG_MAIN), NULL, DialogProc);
+    DialogBox(hInstance, MAKEINTRESOURCE(ID_D1_WND), NULL, DialogProc);
     return 0;
 }
