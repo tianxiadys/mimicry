@@ -4,17 +4,17 @@
 
 class Password
 {
-    HWND hDialog;
-    HWND hPassword;
+    HWND hDialog = nullptr;
+    HWND hPassword = nullptr;
     wchar_t passwordW[50] = {};
     uint8_t passwordB[150] = {};
 
 public:
-    Password(HWND hDlg)
-    {
-        this->hDialog = hDlg;
-        this->hPassword = GetDlgItem(hDlg, ID_D1_PASSWORD);
-    }
+    // Password(HWND hDlg)
+    // {
+    //     this->hDialog = hDlg;
+    //     this->hPassword = GetDlgItem(hDlg, ID_D1_PASSWORD);
+    // }
 
     void buttonShow()
     {
