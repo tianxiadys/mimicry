@@ -1,32 +1,46 @@
 #include "resource.h"
 
-void buttonShowPassword(HWND hWnd)
+void buttonDecrypt()
 {
-    const auto hPassword = GetDlgItem(hWnd, ID_D1_PASSWORD);
-    const auto isShow = IsDlgButtonChecked(hWnd, ID_D1_SHOW);
+}
+
+void buttonEncrypt()
+{
+}
+
+void buttonShowPassword(HWND hDlg)
+{
+    const auto hPassword = GetDlgItem(hDlg, ID_D1_PASSWORD);
+    const auto isShow = IsDlgButtonChecked(hDlg, ID_D1_SHOW);
     SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
     InvalidateRect(hPassword, nullptr, 1);
 }
 
-void messageCommand(HWND hWnd, UINT srcId)
+void messageCommand(HWND hDlg, UINT itemId)
 {
-    switch (srcId)
+    switch (itemId)
     {
+    case ID_D1_DECRYPT:
+        buttonDecrypt();
+        break;
+    case ID_D1_ENCRYPT:
+        buttonEncrypt();
+        break;
     case ID_D1_SHOW:
-        buttonShowPassword(hWnd);
+        buttonShowPassword(hDlg);
         break;
     }
 }
 
-INT_PTR CALLBACK dialogMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
     case WM_CLOSE:
-        EndDialog(hWnd, 0);
+        EndDialog(hDlg, 0);
         break;
     case WM_COMMAND:
-        messageCommand(hWnd, wParam & 0xFFFF);
+        messageCommand(hDlg, wParam & 0xFFFF);
         break;
     }
     return 0;
