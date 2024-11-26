@@ -1,14 +1,35 @@
 #include "resource.h"
 
-void buttonDecrypt()
+int inputPassword(HWND hDlg, wchar_t* output, int outputSize)
 {
+    const auto hPassword = GetDlgItem(hDlg, ID_D1_PASSWORD);
+    const auto realSize = GetDlgItemTextW(hDlg, ID_D1_PASSWORD, output, outputSize);
+    if (realSize < 4)
+    {
+        EDITBALLOONTIP tips = {};
+        tips.cbStruct = sizeof(EDITBALLOONTIP);
+        tips.pszTitle = L"密码太短";
+        tips.pszText = L"必须填写至少四位密码";
+        tips.ttiIcon = TTI_ERROR;
+        Edit_ShowBalloonTip(hPassword, &tips);
+        return 0;
+    }
+    return 1;
 }
 
-void buttonEncrypt()
+void buttonDecrypt(HWND hDlg)
 {
+    wchar_t passwordW[50];
+    const auto lengthW = inputPassword(hDlg, passwordW, 50);
 }
 
-void buttonShowPassword(HWND hDlg)
+void buttonEncrypt(HWND hDlg)
+{
+    wchar_t passwordW[50];
+    const auto lengthW = inputPassword(hDlg, passwordW, 50);
+}
+
+void buttonShow(HWND hDlg)
 {
     const auto hPassword = GetDlgItem(hDlg, ID_D1_PASSWORD);
     const auto isShow = IsDlgButtonChecked(hDlg, ID_D1_SHOW);
@@ -21,13 +42,15 @@ void messageCommand(HWND hDlg, UINT itemId)
     switch (itemId)
     {
     case ID_D1_DECRYPT:
-        buttonDecrypt();
+        buttonDecrypt(hDlg);
         break;
     case ID_D1_ENCRYPT:
-        buttonEncrypt();
+        buttonEncrypt(hDlg);
         break;
     case ID_D1_SHOW:
-        buttonShowPassword(hDlg);
+        buttonShow(hDlg);
+        break;
+    default:
         break;
     }
 }
@@ -38,12 +61,13 @@ INT_PTR CALLBACK dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
     {
     case WM_CLOSE:
         EndDialog(hDlg, 0);
-        break;
+        return 1;
     case WM_COMMAND:
         messageCommand(hDlg, wParam & 0xFFFF);
-        break;
+        return 1;
+    default:
+        return 0;
     }
-    return 0;
 }
 
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
