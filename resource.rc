@@ -1,3 +1,20 @@
 #include "resource.h"
 
-ID_ICON_MAIN ICON "main.ico"
+ID_ICON_MAIN     ICON        "main.ico"
+ID_MANIFEST_MAIN RT_MANIFEST "main.manifest"
+
+ID_DIALOG_MAIN DIALOGEX 0, 0, 300, 190
+STYLE DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Mimicry V1.0"
+FONT 10, "Microsoft YaHei UI"
+BEGIN
+    GROUPBOX "密码", ID_GROUP1, 10, 10, 280, 80
+    GROUPBOX "进度", ID_GROUP2, 10, 100, 280, 80
+    //LTEXT       "密码",     -1,        20, 30, 50, 10
+    //EDITTEXT               IDC_PASSWORD, 80, 28, 160, 14, ES_PASSWORD | WS_BORDER
+    //CONTROL     "显示密码", ID_PASSWORD_SHOW, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 250, 28, 20, 10
+    //PUSHBUTTON  "加密文件", IDC_ENCRYPT, 80, 50, 50, 14
+    //PUSHBUTTON  "解密文件", IDC_DECRYPT, 150, 50, 50, 14
+    //CONTROL         "",   IDC_PROGRESS1, "msctls_progress32", WS_BORDER | WS_VISIBLE, 20, 120, 260, 14
+    //CONTROL         "",   IDC_PROGRESS1, "msctls_progress32", WS_BORDER | WS_VISIBLE, 20, 150, 260, 14
+END
