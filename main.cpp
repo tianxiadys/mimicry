@@ -1,7 +1,7 @@
 #include <windows.h>
-#include "rc4.hpp"
 #include <cwchar>
-#include "progress.hpp"
+#include "rc4.hpp"
+#include "resource.h"
 
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 {
