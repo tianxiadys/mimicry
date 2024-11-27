@@ -13,10 +13,10 @@ public:
         hCheck = GetDlgItem(hDlg, ID_SHOW);
     }
 
-    void messageEnable(int bEnable)
+    void messageEnable(int isEnable)
     {
-        EnableWindow(hPassword, bEnable);
-        EnableWindow(hCheck, bEnable);
+        EnableWindow(hPassword, isEnable);
+        EnableWindow(hCheck, isEnable);
     }
 
     void buttonShow()
@@ -26,21 +26,20 @@ public:
         InvalidateRect(hPassword, nullptr, 1);
     }
 
-    int getPassword(PSTR passwordC, int maxC)
+    int getPassword(PWSTR output, int outputSize)
     {
-        wchar_t passwordW[50];
-        const auto sizeW = GetWindowTextW(hPassword, passwordW, 50);
-        if (sizeW < 4)
+        const auto realSize = GetWindowTextW(hPassword, output, outputSize);
+        if (realSize < 4)
         {
             getPasswordTips(L"密码太短", L"至少填写四位密码");
             return 0;
         }
-        if (sizeW > 40)
+        if (realSize > 40)
         {
             getPasswordTips(L"密码太长", L"至多填写四十位密码");
             return 0;
         }
-        return WideCharToMultiByte(CP_UTF8, 0, passwordW, sizeW, passwordC, maxC, nullptr, nullptr);
+        return realSize;
     }
 
     void getPasswordTips(PCWSTR title, PCWSTR text)
