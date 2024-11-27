@@ -1,7 +1,7 @@
 #pragma once
 #include "password.h"
 
-class Dialog1
+class Dialog
 {
     Password password = {};
 

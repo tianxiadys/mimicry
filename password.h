@@ -25,17 +25,17 @@ public:
         case ID_ENCRYPT:
             inputPassword();
             break;
-        case ID_SECRET:
-            buttonSecret();
+        case ID_SHOW:
+            buttonShow();
             break;
         default:
             break;
         }
     }
 
-    void buttonSecret()
+    void buttonShow()
     {
-        const auto isShow = IsDlgButtonChecked(hDialog, ID_SECRET);
+        const auto isShow = IsDlgButtonChecked(hDialog, ID_SHOW);
         SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
         InvalidateRect(hPassword, nullptr, 1);
     }
@@ -73,7 +73,7 @@ public:
         tips.cbStruct = sizeof(EDITBALLOONTIP);
         tips.pszTitle = title;
         tips.pszText = text;
-        tips.ttiIcon = TTI_ERROR;
-        Edit_ShowBalloonTip(hPassword, &tips);
+        tips.ttiIcon = TTI_WARNING_LARGE;
+        SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&tips);
     }
 };
