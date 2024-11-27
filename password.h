@@ -13,14 +13,6 @@ public:
         hPassword = GetDlgItem(hDlg, ID_PASSWORD);
     }
 
-    void messageCommand(UINT itemId)
-    {
-        if (itemId == ID_SHOW)
-        {
-            buttonShow();
-        }
-    }
-
     void buttonShow()
     {
         const auto isShow = SendMessageW(hCheck, BM_GETCHECK, 0, 0);
@@ -41,7 +33,7 @@ public:
             getPasswordTips(L"密码太长", L"至多填写四十位密码");
             return 0;
         }
-        return 1;
+        return sizeW;
     }
 
     void getPasswordTips(PCWSTR title, PCWSTR text)
