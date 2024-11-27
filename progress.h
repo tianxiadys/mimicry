@@ -3,14 +3,18 @@
 class Progress
 {
     HWND hDialog = nullptr;
-    HWND hProgress1 = nullptr;
-    HWND hProgress2 = nullptr;
 
 public:
     void messageInit(HWND hDlg)
     {
         hDialog = hDlg;
-        hProgress1 = GetDlgItem(hDlg, ID_PROGRESS1);
-        hProgress2 = GetDlgItem(hDlg, ID_PROGRESS2);
+    }
+
+    void setProgress1(int index, int total)
+    {
+        wchar_t text[30];
+        wsprintfW(text, L"全部：%d/%d", index, total);
+        SetDlgItemTextW(hDialog, ID_TEXT1, text);
+        SendDlgItemMessageW(hDialog, ID_PROGRESS1, PBM_SETPOS, index * 100 / total, 0);
     }
 };

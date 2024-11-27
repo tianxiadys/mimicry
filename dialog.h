@@ -6,6 +6,7 @@ class Dialog
 {
     Password password = {};
     Progress progress = {};
+    int index = 0;
 
 public:
     int dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -17,6 +18,15 @@ public:
             return 1;
         case WM_COMMAND:
             password.messageCommand(wParam & 0xFFFF);
+            if (wParam == ID_ENCRYPT)
+            {
+                progress.setProgress1(index++, 50);
+            }
+            if (wParam == ID_DECRYPT)
+            {
+                index = 0;
+                progress.setProgress1(index, 50);
+            }
             return 1;
         case WM_INITDIALOG:
             password.messageInit(hDlg);
