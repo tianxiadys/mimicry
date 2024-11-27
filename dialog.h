@@ -1,9 +1,11 @@
 #pragma once
+#include "control.h"
 #include "password.h"
 #include "progress.h"
 
 class Dialog
 {
+    Control control = {};
     Password password = {};
     Progress progress = {};
 
@@ -19,6 +21,7 @@ public:
             messageCommand(wParam, lParam);
             return 1;
         case WM_INITDIALOG:
+            control.messageInit(hDlg);
             password.messageInit(hDlg);
             progress.messageInit(hDlg);
             return 1;
@@ -32,8 +35,10 @@ public:
         switch (wParam & 0xFFFF)
         {
         case ID_DECRYPT:
+            control.buttonEncrypt(0);
             break;
         case ID_ENCRYPT:
+            control.buttonEncrypt(1);
             break;
         case ID_SHOW:
             password.buttonShow();
