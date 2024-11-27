@@ -45,11 +45,11 @@ public:
 
     void getPasswordTips(PCWSTR title, PCWSTR text)
     {
-        EDITBALLOONTIP tips = {};
-        tips.cbStruct = sizeof(EDITBALLOONTIP);
-        tips.pszTitle = title;
-        tips.pszText = text;
-        tips.ttiIcon = TTI_WARNING;
-        SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&tips);
+        EDITBALLOONTIP info = {};
+        info.cbStruct = sizeof(EDITBALLOONTIP);
+        info.pszTitle = title;
+        info.pszText = text;
+        info.ttiIcon = TTI_WARNING;
+        SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
     }
 };
