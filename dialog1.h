@@ -1,7 +1,7 @@
 #pragma once
 #include "password.h"
 
-class Dialog
+class Dialog1
 {
     Password password = {};
 
@@ -14,6 +14,7 @@ public:
             EndDialog(hDlg, 0);
             return 1;
         case WM_COMMAND:
+            password.messageCommand(wParam & 0xFFFF);
             return 1;
         case WM_INITDIALOG:
             password.messageInit(hDlg);
