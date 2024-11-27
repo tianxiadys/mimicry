@@ -5,8 +5,6 @@ class Password
 {
     HWND hDialog = nullptr;
     HWND hPassword = nullptr;
-    wchar_t passwordW[50] = {};
-    char passwordB[150] = {};
 
 public:
     void messageInit(HWND hDlg)
@@ -17,19 +15,9 @@ public:
 
     void messageCommand(UINT itemId)
     {
-        switch (itemId)
+        if (itemId == ID_SHOW)
         {
-        case ID_DECRYPT:
-            inputPassword();
-            break;
-        case ID_ENCRYPT:
-            inputPassword();
-            break;
-        case ID_SHOW:
             buttonShow();
-            break;
-        default:
-            break;
         }
     }
 
@@ -40,40 +28,29 @@ public:
         InvalidateRect(hPassword, nullptr, 1);
     }
 
-    int inputPassword()
+    int readPassword(PWSTR passwordW, int maxW)
     {
-        int length = inputPasswordLength();
-        if (length > 0)
+        const auto sizeW = GetWindowTextW(hPassword, passwordW, maxW);
+        if (sizeW < 4)
         {
-            length = GetWindowTextW(hPassword, passwordW, 50);
-            length = WideCharToMultiByte(CP_UTF8, 0, passwordW, length, passwordB, 150, nullptr, nullptr);
-        }
-        return length;
-    }
-
-    int inputPasswordLength()
-    {
-        const auto length = GetWindowTextLengthW(hPassword);
-        if (length < 4)
-        {
-            inputPasswordTips(L"密码太短", L"至少填写四位密码");
+            readPasswordTips(L"密码太短", L"至少填写四位密码");
             return 0;
         }
-        if (length > 40)
+        if (sizeW > 40)
         {
-            inputPasswordTips(L"密码太长", L"至多填写四十位密码");
+            readPasswordTips(L"密码太长", L"至多填写四十位密码");
             return 0;
         }
-        return length;
+        return 1;
     }
 
-    void inputPasswordTips(PCWSTR title, PCWSTR text)
+    void readPasswordTips(PCWSTR title, PCWSTR text)
     {
         EDITBALLOONTIP tips = {};
         tips.cbStruct = sizeof(EDITBALLOONTIP);
         tips.pszTitle = title;
         tips.pszText = text;
-        tips.ttiIcon = TTI_WARNING_LARGE;
+        tips.ttiIcon = TTI_WARNING;
         SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&tips);
     }
 };
