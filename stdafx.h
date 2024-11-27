@@ -4,3 +4,4 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <cstdint>
+#include <cwchar>
