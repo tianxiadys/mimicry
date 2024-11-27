@@ -1,16 +1,16 @@
 #include "dialog.h"
 
-static Dialog* masterDlg = nullptr;
+static Dialog* dialog1 = nullptr;
 
-static INT_PTR CALLBACK staticMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dialogMain1(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    return masterDlg->dialogMain(hDlg, message, wParam, lParam);
+    return dialog1->dialogMain(hDlg, message, wParam, lParam);
 }
 
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 {
-    masterDlg = new Dialog;
-    DialogBoxParamW(nullptr, RC_D1_WND, nullptr, staticMain, 0);
-    delete masterDlg;
+    dialog1 = new Dialog;
+    DialogBoxParamW(nullptr, RC_DIALOG, nullptr, dialogMain1, 0);
+    delete dialog1;
     return 0;
 }

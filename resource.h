@@ -1,12 +1,11 @@
 #pragma once
 #include <winres.h>
-#define ID_MAIN_ICON     1
-#define ID_MAIN_MANIFEST 1
-#define ID_D1_WND        1000
-#define ID_D1_GROUP1     1001
-#define ID_D1_PASSWORD   1002
-#define ID_D1_SHOW       1003
-#define ID_D1_ENCRYPT    1004
-#define ID_D1_DECRYPT    1005
-#define ID_D1_CONSOLE    1006
-#define RC_D1_WND        MAKEINTRESOURCEW(ID_D1_WND)
+#define ID_ICON      1
+#define ID_MANIFEST  1
+#define ID_DIALOG    1000
+#define ID_GROUP1    1001
+#define ID_PASSWORD  1002
+#define ID_SECRET    1003
+#define ID_ENCRYPT   1004
+#define ID_DECRYPT   1005
+#define RC_DIALOG    MAKEINTRESOURCEW(ID_DIALOG)
