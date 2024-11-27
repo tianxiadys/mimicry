@@ -3,13 +3,13 @@
 
 class Password
 {
-    HWND hDialog = nullptr;
+    HWND hCheck = nullptr;
     HWND hPassword = nullptr;
 
 public:
     void messageInit(HWND hDlg)
     {
-        hDialog = hDlg;
+        hCheck = GetDlgItem(hDlg, ID_SHOW);
         hPassword = GetDlgItem(hDlg, ID_PASSWORD);
     }
 
@@ -23,7 +23,7 @@ public:
 
     void buttonShow()
     {
-        const auto isShow = IsDlgButtonChecked(hDialog, ID_SHOW);
+        const auto isShow = SendMessageW(hCheck, BM_GETCHECK, 0, 0);
         SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
         InvalidateRect(hPassword, nullptr, 1);
     }
