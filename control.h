@@ -6,8 +6,8 @@ class Control
     HWND hDialog = nullptr;
     HWND hDecrypt = nullptr;
     HWND hEncrypt = nullptr;
-    wchar_t currentW[260] = {};
-    wchar_t selectedW[8000] = {};
+    wchar_t wCurrent[260] = {};
+    wchar_t wSelected[8000] = {};
 
 public:
     void messageInit(HWND hDlg)
@@ -19,14 +19,14 @@ public:
 
     PCWSTR getSelected(int isEncrypt)
     {
-        wmemset(selectedW, 0, 8000);
-        GetCurrentDirectoryW(260, currentW);
+        wmemset(wSelected, 0, 8000);
+        GetCurrentDirectoryW(260, wCurrent);
         OPENFILENAMEW info = {};
         info.lStructSize = sizeof(OPENFILENAMEW);
         info.hwndOwner = hDialog;
-        info.lpstrFile = selectedW;
+        info.lpstrFile = wSelected;
         info.nMaxFile = 8000;
-        info.lpstrInitialDir = currentW;
+        info.lpstrInitialDir = wCurrent;
         info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_NONETWORKBUTTON;
         if (!isEncrypt)
         {
@@ -35,7 +35,7 @@ public:
         const auto result = GetOpenFileNameW(&info);
         if (result)
         {
-            return selectedW;
+            return wSelected;
         }
         const auto reason = CommDlgExtendedError();
         if (reason == FNERR_BUFFERTOOSMALL)

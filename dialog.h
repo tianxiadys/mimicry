@@ -56,16 +56,16 @@ public:
 
     void buttonEncrypt(int isEncrypt)
     {
-        const auto passwordW = password.getPassword();
-        if (!passwordW)
+        const auto cPassword = password.getPassword();
+        if (!cPassword)
         {
             return;
         }
-        const auto selectedW = control.getSelected(isEncrypt);
-        if (!selectedW)
+        const auto wSelected = control.getSelected(isEncrypt);
+        if (!wSelected)
         {
             return;
         }
-        progress.startWork(passwordW, selectedW, isEncrypt);
+        progress.startWork(cPassword, wSelected, isEncrypt);
     }
 };

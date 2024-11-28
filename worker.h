@@ -51,43 +51,4 @@ class Worker
     //        S[j] = temp;
     //        return S[S[i] + S[j] & 0xFF];
     //    }
-    //    HWND hDialog = nullptr;
-    //
-    //public:
-    //    void messageInit(HWND hDlg)
-    //    {
-    //        hDialog = hDlg;
-    //    }
-    //
-    //    void startWorker(PCWSTR passwordW, PCWSTR fileListW, int isEncrypt)
-    //    {
-    //    }
-    //
-    // wchar_t* getNextFile()
-    // {
-    //     if (fileNext == nullptr)
-    //     {
-    //         fileNext = fileBuffer;
-    //         fileIndex = 0;
-    //     }
-    //     fileNext = wcschr(fileNext, 0);
-    //     if (fileNext != nullptr)
-    //     {
-    //         fileIndex++;
-    //         fileNext++;
-    //         if (*fileNext == 0)
-    //         {
-    //             fileNext = nullptr;
-    //         }
-    //     }
-    //     return fileNext;
-    // }
-    //
-    // void resetWorker()
-    // {
-    //     wmemset(fileBuffer, 0, 4096);
-    //     fileNext = nullptr;
-    //     fileIndex = 0;
-    //     fileTotal = 0;
-    // }
 };
