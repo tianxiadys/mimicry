@@ -1,12 +1,19 @@
 #pragma once
+#include "resource.h"
 
 class Worker
 {
+    HWND hDialog = nullptr;
     wchar_t* fileNext = nullptr;
     int fileIndex = 0;
     int fileTotal = 0;
 
 public:
+    void messageInit(HWND hDlg)
+    {
+        hDialog = hDlg;
+    }
+
     // wchar_t* getNextFile()
     // {
     //     if (fileNext == nullptr)

@@ -10,6 +10,8 @@ class Dialog
     Password password = {};
     Progress progress = {};
     Worker worker = {};
+    wchar_t passwordW[48] = {};
+    wchar_t fileListW[8000] = {};
 
 public:
     int dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -56,13 +58,9 @@ public:
         {
             return;
         }
-        if (!control.getFileList(fileBuffer, 4096, isEncrypt))
+        if (!control.getFileList(fileListW, 8000, isEncrypt))
         {
             return;
-        }
-        while (getNextFile() != nullptr)
-        {
-            fileTotal++;
         }
     }
 };

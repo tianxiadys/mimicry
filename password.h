@@ -5,7 +5,6 @@ class Password
 {
     HWND hPassword = nullptr;
     HWND hCheck = nullptr;
-    wchar_t passwordW[48] = {};
 
 public:
     void messageInit(HWND hDlg)
@@ -21,20 +20,20 @@ public:
         InvalidateRect(hPassword, nullptr, 1);
     }
 
-    PCWSTR getPassword()
+    int getPassword(PWSTR output, int outputSize)
     {
-        const auto realSize = GetWindowTextW(hPassword, passwordW, 48);
+        const auto realSize = GetWindowTextW(hPassword, output, outputSize);
         if (realSize < 4)
         {
             showTips(L"密码太短", L"至少填写四位密码");
-            return nullptr;
+            return 0;
         }
         if (realSize > 40)
         {
             showTips(L"密码太长", L"至多填写四十位密码");
-            return nullptr;
+            return 0;
         }
-        return passwordW;
+        return realSize;
     }
 
     void setEnable(int isEnable)
