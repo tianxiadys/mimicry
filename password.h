@@ -5,6 +5,7 @@ class Password
 {
     HWND hPassword = nullptr;
     HWND hCheck = nullptr;
+    wchar_t passwordW[48] = {};
 
 public:
     void messageInit(HWND hDlg)
@@ -20,23 +21,28 @@ public:
         InvalidateRect(hPassword, nullptr, 1);
     }
 
-    int getPassword(PWSTR output, int outputSize)
+    PCWSTR getPassword()
     {
-        const auto realSize = GetWindowTextW(hPassword, output, outputSize);
+        const auto realSize = GetWindowTextW(hPassword, passwordW, 48);
         if (realSize < 4)
         {
-            getPasswordTips(L"密码太短", L"至少填写四位密码");
-            return 0;
+            showTips(L"密码太短", L"至少填写四位密码");
+            return nullptr;
         }
         if (realSize > 40)
         {
-            getPasswordTips(L"密码太长", L"至多填写四十位密码");
-            return 0;
+            showTips(L"密码太长", L"至多填写四十位密码");
+            return nullptr;
         }
-        return realSize;
+        return passwordW;
     }
 
-    void getPasswordTips(PCWSTR title, PCWSTR text)
+    void setEnable(int isEnable)
+    {
+        EnableWindow(hPassword, isEnable);
+    }
+
+    void showTips(PCWSTR title, PCWSTR text)
     {
         EDITBALLOONTIP info = {};
         info.cbStruct = sizeof(EDITBALLOONTIP);
@@ -44,11 +50,5 @@ public:
         info.pszText = text;
         info.ttiIcon = TTI_WARNING;
         SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
-    }
-
-    void setEnable(int isEnable)
-    {
-        EnableWindow(hPassword, isEnable);
-        EnableWindow(hCheck, isEnable);
     }
 };

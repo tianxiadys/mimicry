@@ -19,17 +19,17 @@ public:
 
     void setProgress1(int current, int total)
     {
-        wchar_t text[20];
-        swprintf_s(text, L"全部：%d/%d", current, total);
-        SetWindowTextW(hText1, text);
+        wchar_t buffer[20];
+        swprintf_s(buffer, L"全部：%d/%d", current, total);
+        SetWindowTextW(hText1, buffer);
         SendMessageW(hProgress1, PBM_SETPOS, current * 100 / total, 0);
     }
 
     void setProgress2(int current, int total, PCWSTR fileName)
     {
-        wchar_t text[270];
-        swprintf_s(text, L"当前：%s", fileName);
-        SetWindowTextW(hText2, text);
+        wchar_t buffer[90];
+        swprintf_s(buffer, L"当前：%s", fileName);
+        SetWindowTextW(hText2, buffer);
         SendMessageW(hProgress2, PBM_SETPOS, current * 100 / total, 0);
     }
 };
