@@ -8,7 +8,5 @@
 #define ID_SHOW      1003
 #define ID_ENCRYPT   1004
 #define ID_DECRYPT   1005
-#define ID_TEXT1     1006
-#define ID_TEXT2     1007
-#define ID_PROGRESS1 1008
-#define ID_PROGRESS2 1009
+#define ID_DETAILS   1006
+#define ID_PROGRESS  1007
