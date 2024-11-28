@@ -6,6 +6,8 @@ class Progress
     HWND hDialog = nullptr;
     HWND hDetails = nullptr;
     HWND hProgress = nullptr;
+    wchar_t messageW[2000] = {};
+
     // int nTotal = 0;
     // int nRunning = 0;
     // int nClose = 0;
@@ -21,6 +23,10 @@ public:
     }
 
     void startWork(PCWSTR passwordW, PCWSTR selectedW, int isEncrypt)
+    {
+    }
+
+    void addResult(PCWSTR errorMessage)
     {
     }
 

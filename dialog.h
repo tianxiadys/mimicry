@@ -8,8 +8,6 @@ class Dialog
     Control control = {};
     Password password = {};
     Progress progress = {};
-    wchar_t passwordW[48] = {};
-    wchar_t selectedW[8000] = {};
 
 public:
     int dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -17,7 +15,11 @@ public:
         switch (message)
         {
         case AM_ENABLE:
-            messageEnable(wParam);
+            control.setEnable((int)wParam);
+            password.setEnable((int)wParam);
+            return 1;
+        case AM_RESULT:
+            progress.addResult((PCWSTR)lParam);
             return 1;
         case WM_CLOSE:
             EndDialog(hDlg, 0);
@@ -52,21 +54,15 @@ public:
         }
     }
 
-    void messageEnable(WPARAM wParam)
-    {
-        control.setEnable(wParam ? 1 : 0);
-        password.setEnable(wParam ? 1 : 0);
-    }
-
     void buttonEncrypt(int isEncrypt)
     {
-        wmemset(passwordW, 0, 48);
-        wmemset(selectedW, 0, 8000);
-        if (!password.getPassword(passwordW, 48))
+        const auto passwordW = password.getPassword();
+        if (!passwordW)
         {
             return;
         }
-        if (!control.getFileList(selectedW, 8000, isEncrypt))
+        const auto selectedW = control.getSelected(isEncrypt);
+        if (!selectedW)
         {
             return;
         }
