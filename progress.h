@@ -7,15 +7,10 @@ class Progress
     HWND hDialog = nullptr;
     HWND hDetails = nullptr;
     HWND hProgress = nullptr;
-    wchar_t wMessage[2000] = {};
+    PCSTR pPassword = nullptr;
     PCWSTR pDirectory = nullptr;
     PCWSTR pCurrent = nullptr;
-
-    // int nTotal = 0;
-    // int nRunning = 0;
-    // int nClose = 0;
-    // int nSuccess = 0;
-    // int nError = 0;
+    wchar_t wMessage[2000] = {};
 
 public:
     void messageInit(HWND hDlg)
@@ -27,9 +22,10 @@ public:
 
     void startWork(PCSTR cPassword, PCWSTR wSelected, int isEncrypt)
     {
-        wmemset(wMessage, 0, 2000);
+        pPassword = cPassword;
         pDirectory = wSelected;
         pCurrent = nullptr;
+        wmemset(wMessage, 0, 2000);
     }
 
     void addResult(PCWSTR wError)
@@ -72,13 +68,5 @@ public:
     //         }
     //     }
     //     return fileNext;
-    // }
-    //
-    // void resetWorker()
-    // {
-    //     wmemset(fileBuffer, 0, 4096);
-    //     fileNext = nullptr;
-    //     fileIndex = 0;
-    //     fileTotal = 0;
     // }
 };

@@ -3,6 +3,21 @@
 
 class Worker
 {
+public:
+    static WINAPI DWORD threadMain(PVOID self)
+    {
+        ((Worker*)self)->threadRun();
+    }
+
+    void startWork()
+    {
+        QueueUserWorkItem(threadMain, this, 0);
+    }
+
+    void threadRun()
+    {
+    }
+
     //    uint8_t K[32] = {};
     //    uint8_t S[256] = {};
     //    int i = 0;
