@@ -70,5 +70,6 @@ public:
         {
             return;
         }
+        progress.startWork(passwordW, selectedW, isEncrypt);
     }
 };
