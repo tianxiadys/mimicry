@@ -15,13 +15,7 @@ public:
         hEncrypt = GetDlgItem(hDlg, ID_ENCRYPT);
     }
 
-    void messageEnable(int isEnable)
-    {
-        EnableWindow(hDecrypt, isEnable);
-        EnableWindow(hEncrypt, isEnable);
-    }
-
-    void getFileList(PWSTR output, int outputSize, int isEncrypt)
+    int getFileList(PWSTR output, int outputSize, int isEncrypt)
     {
         wchar_t currentDir[260] = {};
         GetCurrentDirectoryW(260, currentDir);
@@ -36,6 +30,12 @@ public:
         {
             info.lpstrFilter = L".1\0*.1\0\0";
         }
-        GetOpenFileNameW(&info);
+        return GetOpenFileNameW(&info);
+    }
+
+    void setEnable(int isEnable)
+    {
+        EnableWindow(hDecrypt, isEnable);
+        EnableWindow(hEncrypt, isEnable);
     }
 };

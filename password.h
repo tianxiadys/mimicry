@@ -13,12 +13,6 @@ public:
         hCheck = GetDlgItem(hDlg, ID_SHOW);
     }
 
-    void messageEnable(int isEnable)
-    {
-        EnableWindow(hPassword, isEnable);
-        EnableWindow(hCheck, isEnable);
-    }
-
     void buttonShow()
     {
         const auto isShow = SendMessageW(hCheck, BM_GETCHECK, 0, 0);
@@ -50,5 +44,11 @@ public:
         info.pszText = text;
         info.ttiIcon = TTI_WARNING;
         SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
+    }
+
+    void setEnable(int isEnable)
+    {
+        EnableWindow(hPassword, isEnable);
+        EnableWindow(hCheck, isEnable);
     }
 };
