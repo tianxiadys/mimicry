@@ -1,12 +1,19 @@
 #pragma once
-#include "worker.h"
+#include "control.h"
+#include "password.h"
+#include "progress.h"
+#include "rc4.h"
 
 class Dialog
 {
     Control control = {};
     Password password = {};
     Progress progress = {};
-    Worker worker = {};
+    wchar_t passwordW[48] = {};
+    wchar_t fileBuffer[4096] = {};
+    wchar_t* fileNext = nullptr;
+    int fileIndex = 0;
+    int fileTotal = 0;
 
 public:
     int dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -34,8 +41,10 @@ public:
         switch (wParam & 0xFFFF)
         {
         case ID_DECRYPT:
+            buttonEncrypt(0);
             break;
         case ID_ENCRYPT:
+            buttonEncrypt(1);
             break;
         case ID_SHOW:
             password.buttonShow();
@@ -45,25 +54,44 @@ public:
         }
     }
 
-    int getPassword(PWSTR output, int outputSize)
+    void buttonEncrypt(int isEncrypt)
     {
-        return password.getPassword(output, outputSize);
+        wmemset(passwordW, 0, 48);
+        wmemset(fileBuffer, 0, 4096);
+        fileNext = nullptr;
+        fileIndex = 0;
+        fileTotal = 0;
+        if (!password.getPassword(passwordW, 48))
+        {
+            return;
+        }
+        if (!control.getFileList(fileBuffer, 4096, isEncrypt))
+        {
+            return;
+        }
+        while (getNextFile() != nullptr)
+        {
+            fileTotal++;
+        }
     }
 
-    int getFileList(PWSTR output, int outputSize, int isEncrypt)
+    wchar_t* getNextFile()
     {
-        return control.getFileList(output, outputSize, isEncrypt);
-    }
-
-    void setEnable(int isEnable)
-    {
-        control.setEnable(isEnable);
-        password.setEnable(isEnable);
-    }
-
-    void setProgress2(int current1, int total1, int current2, int total2, PCWSTR fileName)
-    {
-        progress.setProgress1(current1, total1);
-        progress.setProgress2(current2, total2, fileName);
+        if (fileNext == nullptr)
+        {
+            fileNext = fileBuffer;
+            fileIndex = 0;
+        }
+        fileNext = wcschr(fileNext, 0);
+        if (fileNext != nullptr)
+        {
+            fileIndex++;
+            fileNext++;
+            if (*fileNext == 0)
+            {
+                fileNext = nullptr;
+            }
+        }
+        return fileNext;
     }
 };

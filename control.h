@@ -30,7 +30,16 @@ public:
         {
             info.lpstrFilter = L".1\0*.1\0\0";
         }
-        return GetOpenFileNameW(&info);
+        const auto result = GetOpenFileNameW(&info);
+        if (!result)
+        {
+            const auto reason = CommDlgExtendedError();
+            if (reason == FNERR_BUFFERTOOSMALL)
+            {
+                MessageBoxW(hDialog, L"选择的文件超过数量限制，请分批次处理", L"错误", 0);
+            }
+        }
+        return result;
     }
 
     void setEnable(int isEnable)
