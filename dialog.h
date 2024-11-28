@@ -2,18 +2,14 @@
 #include "control.h"
 #include "password.h"
 #include "progress.h"
-#include "rc4.h"
+#include "worker.h"
 
 class Dialog
 {
     Control control = {};
     Password password = {};
     Progress progress = {};
-    wchar_t passwordW[48] = {};
-    wchar_t fileBuffer[4096] = {};
-    wchar_t* fileNext = nullptr;
-    int fileIndex = 0;
-    int fileTotal = 0;
+    Worker worker = {};
 
 public:
     int dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -56,11 +52,6 @@ public:
 
     void buttonEncrypt(int isEncrypt)
     {
-        wmemset(passwordW, 0, 48);
-        wmemset(fileBuffer, 0, 4096);
-        fileNext = nullptr;
-        fileIndex = 0;
-        fileTotal = 0;
         if (!password.getPassword(passwordW, 48))
         {
             return;
@@ -73,25 +64,5 @@ public:
         {
             fileTotal++;
         }
-    }
-
-    wchar_t* getNextFile()
-    {
-        if (fileNext == nullptr)
-        {
-            fileNext = fileBuffer;
-            fileIndex = 0;
-        }
-        fileNext = wcschr(fileNext, 0);
-        if (fileNext != nullptr)
-        {
-            fileIndex++;
-            fileNext++;
-            if (*fileNext == 0)
-            {
-                fileNext = nullptr;
-            }
-        }
-        return fileNext;
     }
 };
