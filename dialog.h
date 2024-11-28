@@ -22,7 +22,7 @@ public:
             EndDialog(hDlg, 0);
             return 1;
         case WM_COMMAND:
-            messageCommand(wParam, lParam);
+            messageCommand(LOWORD(wParam));
             return 1;
         case WM_INITDIALOG:
             control.messageInit(hDlg);
@@ -34,9 +34,9 @@ public:
         }
     }
 
-    void messageCommand(WPARAM wParam, LPARAM lParam)
+    void messageCommand(int itemId)
     {
-        switch (wParam & 0xFFFF)
+        switch (itemId)
         {
         case ID_DECRYPT:
             buttonEncrypt(0);
@@ -62,5 +62,8 @@ public:
         {
             return;
         }
+        control.setEnable(0);
+        password.setEnable(0);
+        worker.startWorker(passwordW, fileListW, isEncrypt);
     }
 };

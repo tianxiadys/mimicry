@@ -14,6 +14,10 @@ public:
         hDialog = hDlg;
     }
 
+    void startWorker(PCWSTR passwordW, PCWSTR fileListW, int isEncrypt)
+    {
+    }
+
     // wchar_t* getNextFile()
     // {
     //     if (fileNext == nullptr)
