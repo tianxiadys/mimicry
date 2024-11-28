@@ -6,8 +6,6 @@ class Control
     HWND hDialog = nullptr;
     HWND hDecrypt = nullptr;
     HWND hEncrypt = nullptr;
-    wchar_t bufferW[8000] = {};
-    wchar_t currentDir[260] = {};
 
 public:
     void messageInit(HWND hDlg)
@@ -17,15 +15,15 @@ public:
         hEncrypt = GetDlgItem(hDlg, ID_ENCRYPT);
     }
 
-    PCWSTR getFileList(int isEncrypt)
+    int getFileList(PWSTR output, int outputSize, int isEncrypt)
     {
-        wmemset(bufferW, 0, 8000);
+        wchar_t currentDir[260];
         GetCurrentDirectoryW(260, currentDir);
         OPENFILENAMEW info = {};
         info.lStructSize = sizeof(OPENFILENAMEW);
         info.hwndOwner = hDialog;
-        info.lpstrFile = bufferW;
-        info.nMaxFile = 8000;
+        info.lpstrFile = output;
+        info.nMaxFile = outputSize;
         info.lpstrInitialDir = currentDir;
         info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_NONETWORKBUTTON;
         if (!isEncrypt)
@@ -33,16 +31,15 @@ public:
             info.lpstrFilter = L".1\0*.1\0\0";
         }
         const auto result = GetOpenFileNameW(&info);
-        if (result)
+        if (!result)
         {
-            return bufferW;
+            const auto reason = CommDlgExtendedError();
+            if (reason == FNERR_BUFFERTOOSMALL)
+            {
+                MessageBoxW(hDialog, L"选择的文件数量超过限制，请分批次处理", L"错误", 0);
+            }
         }
-        const auto reason = CommDlgExtendedError();
-        if (reason == FNERR_BUFFERTOOSMALL)
-        {
-            MessageBoxW(hDialog, L"选择的文件数量超过限制，请分批次处理", L"错误", 0);
-        }
-        return nullptr;
+        return result;
     }
 
     void setEnable(int isEnable)

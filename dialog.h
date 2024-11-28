@@ -2,13 +2,14 @@
 #include "control.h"
 #include "password.h"
 #include "progress.h"
-#include "worker.h"
 
 class Dialog
 {
     Control control = {};
     Password password = {};
     Progress progress = {};
+    wchar_t passwordW[48] = {};
+    wchar_t selectedW[8000] = {};
 
 public:
     int dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -50,13 +51,15 @@ public:
 
     void buttonEncrypt(int isEncrypt)
     {
-        // if (!password.getPassword(passwordW, 48))
-        // {
-        //     return;
-        // }
-        // if (!control.getFileList(fileListW, 8000))
-        // {
-        //     return;
-        // }
+        wmemset(passwordW, 0, 48);
+        wmemset(selectedW, 0, 8000);
+        if (!password.getPassword(passwordW, 48))
+        {
+            return;
+        }
+        if (!control.getFileList(selectedW, 8000, isEncrypt))
+        {
+            return;
+        }
     }
 };
