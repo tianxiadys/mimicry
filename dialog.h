@@ -16,11 +16,14 @@ public:
     {
         switch (message)
         {
+        case AM_ENABLE:
+            messageEnable(wParam);
+            return 1;
         case WM_CLOSE:
             EndDialog(hDlg, 0);
             return 1;
         case WM_COMMAND:
-            messageCommand(wParam, lParam);
+            messageCommand(wParam);
             return 1;
         case WM_INITDIALOG:
             control.messageInit(hDlg);
@@ -32,7 +35,7 @@ public:
         }
     }
 
-    void messageCommand(WPARAM wParam, LPARAM lParam)
+    void messageCommand(WPARAM wParam)
     {
         switch (wParam & 0xFFFF)
         {
@@ -47,6 +50,12 @@ public:
             break;
         default: ;
         }
+    }
+
+    void messageEnable(WPARAM wParam)
+    {
+        control.setEnable(wParam ? 1 : 0);
+        password.setEnable(wParam ? 1 : 0);
     }
 
     void buttonEncrypt(int isEncrypt)
