@@ -36,8 +36,7 @@ public:
         {
             info.lpstrFilter = L"*.1\0*.1\0\0";
         }
-        const auto result = GetOpenFileNameW(&info);
-        if (!result)
+        if (!GetOpenFileNameW(&info))
         {
             const auto reason = CommDlgExtendedError();
             if (reason == FNERR_BUFFERTOOSMALL)
