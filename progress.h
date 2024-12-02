@@ -33,7 +33,7 @@ public:
         wmemset(wMessage, 0, 2000);
     }
 
-    void addResult(PCWSTR wError)
+    void addResult(int status, PCWSTR wError)
     {
     }
 

@@ -19,7 +19,7 @@ public:
             password.setEnable((int)wParam);
             return 1;
         case AM_RESULT:
-            progress.addResult((PCWSTR)lParam);
+            progress.addResult((int)wParam, (PCWSTR)lParam);
             return 1;
         case WM_CLOSE:
             progress.messageClose(hDlg);
