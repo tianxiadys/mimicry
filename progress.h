@@ -1,16 +1,19 @@
 #pragma once
 #include "control.h"
 #include "password.h"
+#include "worker.h"
 
 class Progress
 {
     char cPassword[144] = {};
     wchar_t wSelected[8000] = {};
     HWND hDialog = nullptr;
-    PCWSTR fileNext = nullptr;
-    int fileIndex = 0;
-    int fileTotal = 0;
+    PCWSTR pNext = nullptr;
     int isEncrypt = 0;
+    int nIndex = 0;
+    int nTotal = 0;
+    int nOpen = 0;
+    int nClose = 0;
 
 public:
     void messageInit(HWND hDlg)
@@ -18,14 +21,16 @@ public:
         hDialog = hDlg;
     }
 
-    void startWork(Password& password, int _isEncrypt)
+    void startWork(Password& password, WPARAM wParam)
     {
         memset(cPassword, 0, 144);
         wmemset(wSelected, 0, 8000);
-        fileNext = nullptr;
-        fileIndex = 0;
-        fileTotal = 0;
-        isEncrypt = _isEncrypt;
+        pNext = nullptr;
+        isEncrypt = wParam == ID_ENCRYPT;
+        nIndex = 0;
+        nTotal = 0;
+        nOpen = 0;
+        nClose = 0;
         if (!password.getPassword(cPassword, 144))
         {
             return;
@@ -36,32 +41,45 @@ public:
         }
         while (nextFile() != nullptr)
         {
-            fileTotal++;
+            nTotal++;
         }
-        SendMessageW(hDialog, APP_START, 0, 0);
+        SendMessageW(hDialog, APP_NEXT, 0, 0);
     }
 
-    void nextWork(Control& control, int action)
+    void nextWork(Control& control, WPARAM wParam)
     {
+        // if (wParam == 0)
+        // {
+        //     control.setEnable(0);
+        // }
+        // for (; nOpen < 5; nOpen++)
+        // {
+        //     const auto fileName = nextFile();
+        //     if (fileName)
+        //     {
+        //         const auto worker = new Worker;
+        //         worker->startWork();
+        //     }
+        // }
     }
 
     PCWSTR nextFile()
     {
-        if (fileNext == nullptr)
+        if (pNext == nullptr)
         {
-            fileNext = wSelected;
-            fileIndex = 0;
+            pNext = wSelected;
+            nIndex = 0;
         }
-        fileNext = wcschr(fileNext, 0);
-        if (fileNext != nullptr)
+        pNext = wcschr(pNext, 0);
+        if (pNext != nullptr)
         {
-            fileIndex++;
-            fileNext++;
-            if (*fileNext == 0)
+            nIndex++;
+            pNext++;
+            if (*pNext == 0)
             {
-                fileNext = nullptr;
+                pNext = nullptr;
             }
         }
-        return fileNext;
+        return pNext;
     }
 };

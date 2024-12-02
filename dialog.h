@@ -12,19 +12,9 @@ public:
     {
         switch (message)
         {
-        case APP_START:
+        case APP_NEXT:
             {
-                progress.nextWork(control, 1);
-                return 1;
-            }
-        case APP_SUCCESS:
-            {
-                progress.nextWork(control, 2);
-                return 1;
-            }
-        case APP_ERROR:
-            {
-                progress.nextWork(control, 3);
+                progress.nextWork(control, wParam);
                 return 1;
             }
         case WM_CLOSE:
@@ -37,10 +27,8 @@ public:
                 switch (wParam)
                 {
                 case ID_DECRYPT:
-                    progress.startWork(password, 0);
-                    return 1;
                 case ID_ENCRYPT:
-                    progress.startWork(password, 1);
+                    progress.startWork(password, wParam);
                     return 1;
                 case ID_SHOW:
                     control.buttonShow();
