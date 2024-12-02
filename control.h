@@ -3,54 +3,43 @@
 
 class Control
 {
-    HWND hDialog = nullptr;
+    HWND hCheck = nullptr;
     HWND hDecrypt = nullptr;
+    HWND hDetails = nullptr;
     HWND hEncrypt = nullptr;
-    wchar_t wCurrent[260] = {};
-    wchar_t wSelected[8000] = {};
+    HWND hPassword = nullptr;
+    HWND hProgress = nullptr;
 
 public:
-    Control()
-    {
-        GetCurrentDirectoryW(260, wCurrent);
-    }
-
     void messageInit(HWND hDlg)
     {
-        hDialog = hDlg;
+        hCheck = GetDlgItem(hDlg, ID_SHOW);
         hDecrypt = GetDlgItem(hDlg, ID_DECRYPT);
+        hDetails = GetDlgItem(hDlg, ID_DETAILS);
         hEncrypt = GetDlgItem(hDlg, ID_ENCRYPT);
+        hPassword = GetDlgItem(hDlg, ID_PASSWORD);
+        hProgress = GetDlgItem(hDlg, ID_PROGRESS);
     }
 
-    PCWSTR getSelected(int isEncrypt)
+    void buttonShow()
     {
-        wmemset(wSelected, 0, 8000);
-        OPENFILENAMEW info = {};
-        info.lStructSize = sizeof(OPENFILENAMEW);
-        info.hwndOwner = hDialog;
-        info.lpstrFile = wSelected;
-        info.nMaxFile = 8000;
-        info.lpstrInitialDir = wCurrent;
-        info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_NONETWORKBUTTON;
-        if (!isEncrypt)
-        {
-            info.lpstrFilter = L"*.1\0*.1\0\0";
-        }
-        if (!GetOpenFileNameW(&info))
-        {
-            const auto reason = CommDlgExtendedError();
-            if (reason == FNERR_BUFFERTOOSMALL)
-            {
-                MessageBoxW(hDialog, L"选择的文件太多了", L"错误", 0);
-            }
-            return nullptr;
-        }
-        return wSelected;
+        const auto isShow = SendMessageW(hCheck, BM_GETCHECK, 0, 0);
+        SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
+        InvalidateRect(hPassword, nullptr, 1);
     }
 
     void setEnable(int isEnable)
     {
         EnableWindow(hDecrypt, isEnable);
         EnableWindow(hEncrypt, isEnable);
+        EnableWindow(hPassword, isEnable);
+    }
+
+    void setProgress(int total, int open, int close)
+    {
+        wchar_t buffer[30];
+        swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
+        SetWindowTextW(hDetails, buffer);
+        SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
     }
 };
