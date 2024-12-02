@@ -10,6 +10,11 @@ class Control
     wchar_t wSelected[8000] = {};
 
 public:
+    Control()
+    {
+        GetCurrentDirectoryW(260, wCurrent);
+    }
+
     void messageInit(HWND hDlg)
     {
         hDialog = hDlg;
@@ -20,7 +25,6 @@ public:
     PCWSTR getSelected(int isEncrypt)
     {
         wmemset(wSelected, 0, 8000);
-        GetCurrentDirectoryW(260, wCurrent);
         OPENFILENAMEW info = {};
         info.lStructSize = sizeof(OPENFILENAMEW);
         info.hwndOwner = hDialog;
@@ -30,7 +34,7 @@ public:
         info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_NONETWORKBUTTON;
         if (!isEncrypt)
         {
-            info.lpstrFilter = L".1\0*.1\0\0";
+            info.lpstrFilter = L"*.1\0*.1\0\0";
         }
         const auto result = GetOpenFileNameW(&info);
         if (result)
