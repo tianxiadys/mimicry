@@ -16,18 +16,21 @@ class Progress
 public:
     Progress()
     {
-        const auto result = CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT);
+        const auto result = CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, 0);
         if (!result)
         {
             const auto reason = GetLastError();
-            swprintf_s(wMessage, L"初始化加密组件失败（代码%d）", reason);
+            swprintf_s(wMessage, L"初始化加密组件失败0x%X", reason);
             MessageBoxW(nullptr, wMessage, L"错误", 0);
         }
     }
 
     ~Progress()
     {
-        CryptReleaseContext(hCrypt, 0);
+        if (hCrypt != 0)
+        {
+            CryptReleaseContext(hCrypt, 0);
+        }
     }
 
     void messageInit(HWND hDlg)
@@ -44,10 +47,6 @@ public:
 
     void startWork(PCSTR cPassword, PCWSTR wSelected, int isEncrypt)
     {
-        pPassword = cPassword;
-        pDirectory = wSelected;
-        pCurrent = nullptr;
-        wmemset(wMessage, 0, 2000);
     }
 
     void addResult(int status, PCWSTR wError)

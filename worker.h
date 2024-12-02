@@ -4,20 +4,20 @@
 class Worker
 {
 public:
-    static WINAPI DWORD threadMain(PVOID lParam)
+    static WINAPI DWORD staticMain(PVOID input)
     {
-        const auto self = (Worker*)lParam;
-        self->threadRun();
+        const auto self = (Worker*)input;
+        self->threadMain();
         delete self;
         return 0;
     }
 
     void startWork()
     {
-        QueueUserWorkItem(threadMain, this, 0);
+        QueueUserWorkItem(staticMain, this, 0);
     }
 
-    void threadRun()
+    void threadMain()
     {
     }
 };
