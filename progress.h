@@ -20,6 +20,11 @@ public:
         hProgress = GetDlgItem(hDlg, ID_PROGRESS);
     }
 
+    void messageClose(HWND hDlg)
+    {
+        EndDialog(hDlg, 0);
+    }
+
     void startWork(PCSTR cPassword, PCWSTR wSelected, int isEncrypt)
     {
         pPassword = cPassword;
