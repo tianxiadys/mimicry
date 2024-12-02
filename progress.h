@@ -4,6 +4,7 @@
 
 class Progress
 {
+    HCRYPTPROV hCrypt = 0;
     HWND hDialog = nullptr;
     HWND hDetails = nullptr;
     HWND hProgress = nullptr;
@@ -13,6 +14,22 @@ class Progress
     wchar_t wMessage[2000] = {};
 
 public:
+    Progress()
+    {
+        const auto result = CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT);
+        if (!result)
+        {
+            const auto reason = GetLastError();
+            swprintf_s(wMessage, L"初始化加密组件失败（代码%d）", reason);
+            MessageBoxW(nullptr, wMessage, L"错误", 0);
+        }
+    }
+
+    ~Progress()
+    {
+        CryptReleaseContext(hCrypt, 0);
+    }
+
     void messageInit(HWND hDlg)
     {
         hDialog = hDlg;

@@ -9,6 +9,7 @@ public:
         const auto self = (Worker*)lParam;
         self->threadRun();
         delete self;
+        return 0;
     }
 
     void startWork()

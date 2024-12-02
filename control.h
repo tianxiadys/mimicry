@@ -37,16 +37,16 @@ public:
             info.lpstrFilter = L"*.1\0*.1\0\0";
         }
         const auto result = GetOpenFileNameW(&info);
-        if (result)
+        if (!result)
         {
-            return wSelected;
+            const auto reason = CommDlgExtendedError();
+            if (reason == FNERR_BUFFERTOOSMALL)
+            {
+                MessageBoxW(hDialog, L"选择的文件太多了", L"错误", 0);
+            }
+            return nullptr;
         }
-        const auto reason = CommDlgExtendedError();
-        if (reason == FNERR_BUFFERTOOSMALL)
-        {
-            MessageBoxW(hDialog, L"选择的文件数量超过限制，请分批次处理", L"错误", 0);
-        }
-        return nullptr;
+        return wSelected;
     }
 
     void setEnable(int isEnable)
