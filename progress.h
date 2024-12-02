@@ -4,8 +4,8 @@
 
 class Progress
 {
-    Password& password;
-    Control& control;
+    char cPassword[144] = {};
+    wchar_t wSelected[8000] = {};
     HWND hDialog = nullptr;
     PCWSTR fileNext = nullptr;
     int fileIndex = 0;
@@ -13,16 +13,12 @@ class Progress
     int isEncrypt = 0;
 
 public:
-    Progress(Password& _password, Control& _control): password(_password), control(_control)
-    {
-    }
-
     void messageInit(HWND hDlg)
     {
         hDialog = hDlg;
     }
 
-    void startWork(, int _isEncrypt)
+    void startWork(Password& password, int _isEncrypt)
     {
         memset(cPassword, 0, 144);
         wmemset(wSelected, 0, 8000);
@@ -42,10 +38,10 @@ public:
         {
             fileTotal++;
         }
-        nextWorker();
+        SendMessageW(hDialog, APP_START, 0, 0);
     }
 
-    void nextWork()
+    void nextWork(Control& control, int action)
     {
     }
 

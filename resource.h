@@ -10,4 +10,6 @@
 #define ID_DECRYPT   1005
 #define ID_DETAILS   1006
 #define ID_PROGRESS  1007
-#define APP_NEXT     0x8001
+#define APP_START    0x8001
+#define APP_SUCCESS  0x8002
+#define APP_ERROR    0x8003
