@@ -1,5 +1,4 @@
 #pragma once
-#include "control.h"
 #include "progress.h"
 
 class Dialog
@@ -13,12 +12,30 @@ public:
     {
         switch (message)
         {
+        case APP_NEXT:
+            progress.nextWork(control, (int)wParam);
+            return 1;
         case WM_CLOSE:
             EndDialog(hDlg, 0);
             return 1;
         case WM_COMMAND:
-            messageCommand((int)wParam & 0xFFFF);
-            return 1;
+            if (wParam == ID_DECRYPT || wParam == ID_ENCRYPT)
+            {
+                const auto isEncrypt = wParam == ID_ENCRYPT;
+                progress.startWork(password, 0);
+                return 1;
+            }
+            if (wParam == ID_ENCRYPT)
+            {
+                progress.startWork(password, 1);
+                return 1;
+            }
+            if (wParam == ID_SHOW)
+            {
+                control.buttonShow();
+                return 1;
+            }
+            return 0;
         case WM_INITDIALOG:
             control.messageInit(hDlg);
             password.messageInit(hDlg);
@@ -26,23 +43,6 @@ public:
             return 1;
         default:
             return 0;
-        }
-    }
-
-    void messageCommand(int itemId)
-    {
-        switch (itemId)
-        {
-        case ID_DECRYPT:
-            progress.startWork(password, 0);
-            break;
-        case ID_ENCRYPT:
-            progress.startWork(password, 1);
-            break;
-        case ID_SHOW:
-            control.buttonShow();
-            break;
-        default: ;
         }
     }
 };
