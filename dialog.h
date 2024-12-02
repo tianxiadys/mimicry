@@ -22,7 +22,7 @@ public:
             progress.addResult((int)wParam, (PCWSTR)lParam);
             return 1;
         case WM_CLOSE:
-            progress.messageClose(hDlg);
+            EndDialog(hDlg, 0);
             return 1;
         case WM_COMMAND:
             messageCommand(wParam);

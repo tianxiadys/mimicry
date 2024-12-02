@@ -5,12 +5,6 @@
 class Progress
 {
     HCRYPTPROV hCrypt = 0;
-    HWND hDialog = nullptr;
-    HWND hDetails = nullptr;
-    HWND hProgress = nullptr;
-    PCSTR pPassword = nullptr;
-    PCWSTR pDirectory = nullptr;
-    PCWSTR pCurrent = nullptr;
     wchar_t wMessage[2000] = {};
 
 public:
@@ -35,14 +29,6 @@ public:
 
     void messageInit(HWND hDlg)
     {
-        hDialog = hDlg;
-        hDetails = GetDlgItem(hDlg, ID_DETAILS);
-        hProgress = GetDlgItem(hDlg, ID_PROGRESS);
-    }
-
-    void messageClose(HWND hDlg)
-    {
-        EndDialog(hDlg, 0);
     }
 
     void startWork(PCSTR cPassword, PCWSTR wSelected, int isEncrypt)

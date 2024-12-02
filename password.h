@@ -27,12 +27,12 @@ public:
         const auto count = GetWindowTextW(hPassword, wPassword, 48);
         if (count < 4)
         {
-            showTips(L"密码太短", L"至少填写四位密码");
+            showTips(L"至少填写四位密码", L"密码太短");
             return nullptr;
         }
         if (count > 40)
         {
-            showTips(L"密码太长", L"至多填写四十位密码");
+            showTips(L"至多填写四十位密码", L"密码太长");
             return nullptr;
         }
         WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr);
@@ -44,7 +44,7 @@ public:
         EnableWindow(hPassword, isEnable);
     }
 
-    void showTips(PCWSTR title, PCWSTR text)
+    void showTips(PCWSTR text, PCWSTR title)
     {
         EDITBALLOONTIP info = {};
         info.cbStruct = sizeof(EDITBALLOONTIP);
