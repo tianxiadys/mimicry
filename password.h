@@ -5,38 +5,30 @@ class Password
 {
     HWND hDialog = nullptr;
     HWND hPassword = nullptr;
-    wchar_t wPassword[48] = {};
-    char cPassword[144] = {};
-    wchar_t wCurrent[260] = {};
-    wchar_t wSelected[8000] = {};
 
 public:
-    Password()
-    {
-        GetCurrentDirectoryW(260, wCurrent);
-    }
-
     void messageInit(HWND hDlg)
     {
         hDialog = hDlg;
         hPassword = GetDlgItem(hDlg, ID_PASSWORD);
     }
 
-    PCSTR getPassword()
+    int getPassword(PSTR output, int outputSize)
     {
+        wchar_t wPassword[48] = {};
         const auto count = GetWindowTextW(hPassword, wPassword, 48);
         if (count < 4)
         {
             getPasswordTips(L"至少填写四位密码", L"密码太短");
-            return nullptr;
+            return 0;
         }
         if (count > 40)
         {
             getPasswordTips(L"至多填写四十位密码", L"密码太长");
-            return nullptr;
+            return 0;
         }
-        WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr);
-        return cPassword;
+        WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, output, outputSize, nullptr, nullptr);
+        return 1;
     }
 
     void getPasswordTips(PCWSTR text, PCWSTR title)
@@ -49,14 +41,15 @@ public:
         SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
     }
 
-    PCWSTR getSelected(int isEncrypt)
+    int getSelected(PWSTR output, int outputSize, int isEncrypt)
     {
-        wmemset(wSelected, 0, 8000);
+        wchar_t wCurrent[260] = {};
+        GetCurrentDirectoryW(260, wCurrent);
         OPENFILENAMEW info = {};
         info.lStructSize = sizeof(OPENFILENAMEW);
         info.hwndOwner = hDialog;
-        info.lpstrFile = wSelected;
-        info.nMaxFile = 8000;
+        info.lpstrFile = output;
+        info.nMaxFile = outputSize;
         info.lpstrInitialDir = wCurrent;
         info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_NONETWORKBUTTON;
         if (!isEncrypt)
@@ -70,8 +63,8 @@ public:
             {
                 MessageBoxW(hDialog, L"选择的文件太多了", L"错误", 0);
             }
-            return nullptr;
+            return 0;
         }
-        return wSelected;
+        return 1;
     }
 };

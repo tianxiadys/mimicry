@@ -10,5 +10,3 @@
 #define ID_DECRYPT   1005
 #define ID_DETAILS   1006
 #define ID_PROGRESS  1007
-#define AM_ENABLE    0x8001
-#define AM_RESULT    0x8002

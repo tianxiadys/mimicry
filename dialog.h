@@ -1,6 +1,5 @@
 #pragma once
 #include "control.h"
-#include "password.h"
 #include "progress.h"
 
 class Dialog
@@ -10,21 +9,15 @@ class Dialog
     Progress progress = {};
 
 public:
-    int dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+    INT_PTR dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
         {
-        case AM_ENABLE:
-            control.setEnable((int)wParam);
-            return 1;
-        case AM_RESULT:
-            progress.addResult((int)wParam, (PCWSTR)lParam);
-            return 1;
         case WM_CLOSE:
             EndDialog(hDlg, 0);
             return 1;
         case WM_COMMAND:
-            messageCommand(wParam);
+            messageCommand((int)wParam & 0xFFFF);
             return 1;
         case WM_INITDIALOG:
             control.messageInit(hDlg);
@@ -36,9 +29,9 @@ public:
         }
     }
 
-    void messageCommand(WPARAM wParam)
+    void messageCommand(int itemId)
     {
-        switch (wParam & 0xFFFF)
+        switch (itemId)
         {
         case ID_DECRYPT:
             progress.startWork(password, 0);

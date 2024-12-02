@@ -1,34 +1,31 @@
 #pragma once
 #include "password.h"
-#include "worker.h"
 
 class Progress
 {
-    wchar_t wMessage[2000] = {};
+    HWND hDialog = nullptr;
+    char cPassword[144] = {};
+    wchar_t wSelected[8000] = {};
 
 public:
     void messageInit(HWND hDlg)
     {
+        hDialog = hDlg;
     }
 
     void startWork(Password& password, int isEncrypt)
     {
+        wmemset(wSelected, 0, 8000);
+        if (!password.getPassword(cPassword, 144))
+        {
+            return;
+        }
+        if (!password.getSelected(wSelected, 8000, isEncrypt))
+        {
+            return;
+        }
     }
 
-    void addResult(int result, PCWSTR wError)
-    {
-    }
-
-    // void setTotal(int total)
-    // {
-    //     nTotal = total;
-    //     nRunning = 0;
-    //     nClose = 0;
-    //     nSuccess = 0;
-    //     nError = 0;
-    //     updateProgress();
-    // }
-    //
     // wchar_t* getNextFile()
     // {
     //     if (fileNext == nullptr)
