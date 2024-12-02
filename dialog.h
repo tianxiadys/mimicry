@@ -16,7 +16,6 @@ public:
         {
         case AM_ENABLE:
             control.setEnable((int)wParam);
-            password.setEnable((int)wParam);
             return 1;
         case AM_RESULT:
             progress.addResult((int)wParam, (PCWSTR)lParam);
@@ -42,30 +41,15 @@ public:
         switch (wParam & 0xFFFF)
         {
         case ID_DECRYPT:
-            buttonEncrypt(0);
+            progress.startWork(password, 0);
             break;
         case ID_ENCRYPT:
-            buttonEncrypt(1);
+            progress.startWork(password, 1);
             break;
         case ID_SHOW:
-            password.buttonShow();
+            control.buttonShow();
             break;
         default: ;
         }
-    }
-
-    void buttonEncrypt(int isEncrypt)
-    {
-        const auto cPassword = password.getPassword();
-        if (!cPassword)
-        {
-            return;
-        }
-        const auto wSelected = control.getSelected(isEncrypt);
-        if (!wSelected)
-        {
-            return;
-        }
-        progress.startWork(cPassword, wSelected, isEncrypt);
     }
 };

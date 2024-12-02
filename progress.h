@@ -1,5 +1,5 @@
 #pragma once
-#include "resource.h"
+#include "password.h"
 #include "worker.h"
 
 class Progress
@@ -11,7 +11,7 @@ public:
     {
     }
 
-    void startWork(PCSTR cPassword, PCWSTR wSelected, int isEncrypt)
+    void startWork(Password& password, int isEncrypt)
     {
     }
 
@@ -27,14 +27,6 @@ public:
     //     nSuccess = 0;
     //     nError = 0;
     //     updateProgress();
-    // }
-    //
-    // void updateProgress()
-    // {
-    //     wchar_t buffer[30];
-    //     swprintf_s(buffer, L"总数%d - 进行中%d - 成功%d - 失败%d", nTotal, nRunning, nSuccess, nError);
-    //     SetWindowTextW(hDetails, buffer);
-    //     SendMessageW(hProgress, PBM_SETPOS, nClose * 100 / nTotal, 0);
     // }
     //
     // wchar_t* getNextFile()

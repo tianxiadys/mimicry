@@ -22,21 +22,21 @@ public:
         hPassword = GetDlgItem(hDlg, ID_PASSWORD);
     }
 
-    int getPassword()
+    PCSTR getPassword()
     {
         const auto count = GetWindowTextW(hPassword, wPassword, 48);
         if (count < 4)
         {
             getPasswordTips(L"至少填写四位密码", L"密码太短");
-            return 0;
+            return nullptr;
         }
         if (count > 40)
         {
             getPasswordTips(L"至多填写四十位密码", L"密码太长");
-            return 0;
+            return nullptr;
         }
         WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr);
-        return 1;
+        return cPassword;
     }
 
     void getPasswordTips(PCWSTR text, PCWSTR title)
@@ -49,7 +49,7 @@ public:
         SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
     }
 
-    int getSelected(int isEncrypt)
+    PCWSTR getSelected(int isEncrypt)
     {
         wmemset(wSelected, 0, 8000);
         OPENFILENAMEW info = {};
@@ -70,8 +70,8 @@ public:
             {
                 MessageBoxW(hDialog, L"选择的文件太多了", L"错误", 0);
             }
-            return 0;
+            return nullptr;
         }
-        return 1;
+        return wSelected;
     }
 };
