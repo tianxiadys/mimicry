@@ -203,8 +203,7 @@ public:
     {
         if (fileListNext())
         {
-            const auto worker = new Worker;
-            worker->startWork();
+            Worker::staticNew(hDialog, cPassword, wFileName, isEncrypt);
         }
     }
 

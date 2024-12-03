@@ -6,10 +6,16 @@ class Worker
     HCRYPTPROV hCrypt = 0;
 
 public:
+    static void staticNew(HWND hDlg, PCSTR cPassword, PCWSTR wFileName, int isEncrypt)
+    {
+        const auto self = new Worker;
+        QueueUserWorkItem(staticMain, self, 0);
+    }
+
     static WINAPI DWORD staticMain(PVOID input)
     {
         const auto self = (Worker*)input;
-        self->threadMain();
+        self->workerMain();
         delete self;
         return 0;
     }
@@ -29,12 +35,7 @@ public:
         }
     }
 
-    void startWork()
-    {
-        QueueUserWorkItem(staticMain, this, 0);
-    }
-
-    void threadMain()
+    void workerMain()
     {
     }
 
