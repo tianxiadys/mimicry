@@ -1,5 +1,7 @@
 #pragma once
+
 #include <winres.h>
+
 #define ID_ICON      1
 #define ID_MANIFEST  1
 #define ID_DIALOG    201

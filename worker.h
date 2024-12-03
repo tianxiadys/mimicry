@@ -1,42 +1,35 @@
 #pragma once
+
 #include "resource.h"
 
-class Worker
-{
+class Worker {
     HCRYPTPROV hCrypt = 0;
 
 public:
-    static void staticNew(HWND hDlg, PCSTR cPassword, PCWSTR wFileName, int isEncrypt)
-    {
+    static void staticNew(HWND hDlg, PCSTR cPassword, PCWSTR wFileName, int isEncrypt) {
         const auto self = new Worker;
         QueueUserWorkItem(staticMain, self, 0);
     }
 
-    static WINAPI DWORD staticMain(PVOID input)
-    {
-        const auto self = (Worker*)input;
+    static WINAPI DWORD staticMain(PVOID input) {
+        const auto self = (Worker *) input;
         self->workerMain();
         delete self;
         return 0;
     }
 
-    Worker()
-    {
-        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
-        {
+    Worker() {
+        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
         }
     }
 
-    ~Worker()
-    {
-        if (hCrypt != 0)
-        {
+    ~Worker() {
+        if (hCrypt != 0) {
             CryptReleaseContext(hCrypt, 0);
         }
     }
 
-    void workerMain()
-    {
+    void workerMain() {
     }
 
 
