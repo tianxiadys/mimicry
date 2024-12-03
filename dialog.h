@@ -4,27 +4,20 @@
 class Dialog
 {
     HWND hDialog = nullptr;
-    HWND hDecrypt = nullptr;
-    HWND hDetails = nullptr;
-    HWND hEncrypt = nullptr;
-    HWND hMask = nullptr;
     HWND hPassword = nullptr;
+    HWND hMask = nullptr;
+    HWND hDetails = nullptr;
     HWND hProgress = nullptr;
+    HWND hEncrypt = nullptr;
+    HWND hDecrypt = nullptr;
     PCWSTR pNext = nullptr;
     int isEncrypt = 0;
     int nIndex = 0;
     int nTotal = 0;
-    wchar_t wPassword[48] = {};
     char cPassword[144] = {};
-    wchar_t wCurrent[260] = {};
-    wchar_t wSelected[8000] = {};
+    wchar_t wFileList[8000] = {};
 
 public:
-    Dialog()
-    {
-        GetCurrentDirectoryW(260, wCurrent);
-    }
-
     INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
@@ -49,12 +42,12 @@ public:
     void messageInit(HWND hDlg)
     {
         hDialog = hDlg;
-        hDecrypt = GetDlgItem(hDlg, ID_DECRYPT);
-        hDetails = GetDlgItem(hDlg, ID_DETAILS);
-        hEncrypt = GetDlgItem(hDlg, ID_ENCRYPT);
-        hMask = GetDlgItem(hDlg, ID_MASK);
         hPassword = GetDlgItem(hDlg, ID_PASSWORD);
+        hMask = GetDlgItem(hDlg, ID_MASK);
+        hDetails = GetDlgItem(hDlg, ID_DETAILS);
         hProgress = GetDlgItem(hDlg, ID_PROGRESS);
+        hEncrypt = GetDlgItem(hDlg, ID_ENCRYPT);
+        hDecrypt = GetDlgItem(hDlg, ID_DECRYPT);
     }
 
     void messageCommand(WPARAM wParam)
@@ -64,43 +57,64 @@ public:
         case ID_DECRYPT:
             {
                 isEncrypt = 0;
-                startWork();
+                if (!passwordGet())
+                {
+                    return;
+                }
+                if (!fileListGet())
+                {
+                    return;
+                }
+                //startWork();
                 break;
             }
         case ID_ENCRYPT:
             {
                 isEncrypt = 1;
-                startWork();
+                if (!passwordGet())
+                {
+                    return;
+                }
+                if (!fileListGet())
+                {
+                    return;
+                }
+                //startWork();
                 break;
             }
         case ID_MASK:
-            {
-                const auto isShow = SendMessageW(hMask, BM_GETCHECK, 0, 0);
-                setMask((int)isShow);
-                break;
-            }
+            passwordMask();
+            break;
         default: ;
         }
     }
 
-    int getPassword()
+    int passwordGet()
     {
+        wchar_t wPassword[48] = {};
         const auto count = GetWindowTextW(hPassword, wPassword, 48);
         if (count < 4)
         {
-            getPasswordTips(L"至少填写四位密码", L"密码太短");
+            passwordTips(L"至少填写四位密码", L"密码太短");
             return 0;
         }
         if (count > 40)
         {
-            getPasswordTips(L"至多填写四十位密码", L"密码太长");
+            passwordTips(L"至多填写四十位密码", L"密码太长");
             return 0;
         }
         WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr);
         return 1;
     }
 
-    void getPasswordTips(PCWSTR text, PCWSTR title)
+    void passwordMask()
+    {
+        const auto isShow = SendMessageW(hMask, BM_GETCHECK, 0, 0);
+        SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
+        InvalidateRect(hPassword, nullptr, 1);
+    }
+
+    void passwordTips(PCWSTR text, PCWSTR title)
     {
         EDITBALLOONTIP info = {};
         info.cbStruct = sizeof(EDITBALLOONTIP);
@@ -110,18 +124,21 @@ public:
         SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
     }
 
-    int getSelected()
+    int fileListGet()
     {
         OPENFILENAMEW info = {};
         info.lStructSize = sizeof(OPENFILENAMEW);
         info.hwndOwner = hDialog;
-        info.lpstrFile = wSelected;
+        info.lpstrFile = wFileList;
         info.nMaxFile = 8000;
-        info.lpstrInitialDir = wCurrent;
         info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_NONETWORKBUTTON;
         if (!isEncrypt)
         {
             info.lpstrFilter = L"*.1\0*.1\0\0";
+        }
+        if (!GetCurrentDirectoryW(260, wFileList))
+        {
+            return 0;
         }
         if (!GetOpenFileNameW(&info))
         {
@@ -135,39 +152,13 @@ public:
         return 1;
     }
 
-    void setEnable(int isEnable)
-    {
-        EnableWindow(hDecrypt, isEnable);
-        EnableWindow(hEncrypt, isEnable);
-        EnableWindow(hPassword, isEnable);
-    }
-
-    void setMask(int isShow)
-    {
-        SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
-        InvalidateRect(hPassword, nullptr, 1);
-    }
-
-    void setProgress(int total, int open, int close)
-    {
-        wchar_t buffer[30];
-        swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
-        SetWindowTextW(hDetails, buffer);
-        SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
-    }
-
     void jobStart()
     {
-        memset(cPassword, 0, 144);
-        wmemset(wSelected, 0, 8000);
-        pNext = nullptr;
-        nIndex = 0;
-        nTotal = 0;
-        if (!getPassword())
+        if (!passwordGet())
         {
             return;
         }
-        if (!getSelected())
+        if (!fileListGet())
         {
             return;
         }
@@ -189,4 +180,19 @@ public:
     //         //     }
     //         // }
     //     }
+    //
+    // void setEnable(int isEnable)
+    // {
+    //     EnableWindow(hDecrypt, isEnable);
+    //     EnableWindow(hEncrypt, isEnable);
+    //     EnableWindow(hPassword, isEnable);
+    // }
+    //
+    // void setProgress(int total, int open, int close)
+    // {
+    //     wchar_t buffer[30];
+    //     swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
+    //     SetWindowTextW(hDetails, buffer);
+    //     SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
+    // }
 };
