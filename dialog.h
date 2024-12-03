@@ -21,8 +21,8 @@ public:
     {
         switch (message)
         {
-        case APP_NEXT:
-            //progress.nextWork(control, wParam);
+        case APP_RESULT:
+            taskResult(wParam);
             return 1;
         case WM_CLOSE:
             EndDialog(hDlg, 0);
@@ -187,37 +187,42 @@ public:
         {
             return;
         }
+        for (int i = 0; i < 5; i++)
+        {
+            taskNext();
+        }
+        taskControl();
     }
 
-    //     void nextWork(Control& control, WPARAM wParam)
-    //     {
-    //         // if (wParam == 0)
-    //         // {
-    //         //     control.setEnable(0);
-    //         // }
-    //         // for (; nOpen < 5; nOpen++)
-    //         // {
-    //         //     const auto fileName = nextFile();
-    //         //     if (fileName)
-    //         //     {
-    //         //         const auto worker = new Worker;
-    //         //         worker->startWork();
-    //         //     }
-    //         // }
-    //     }
-    //
-    // void setEnable(int isEnable)
-    // {
-    //     EnableWindow(hDecrypt, isEnable);
-    //     EnableWindow(hEncrypt, isEnable);
-    //     EnableWindow(hPassword, isEnable);
-    // }
-    //
-    // void setProgress(int total, int open, int close)
-    // {
-    //     wchar_t buffer[30];
-    //     swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
-    //     SetWindowTextW(hDetails, buffer);
-    //     SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
-    // }
+    void taskResult(WPARAM wParam)
+    {
+        taskControl();
+    }
+
+    void taskNext()
+    {
+        if (fileListNext())
+        {
+            const auto worker = new Worker;
+            worker->startWork();
+        }
+    }
+
+    void taskControl()
+    {
+        // void setEnable(int isEnable)
+        // {
+        //     EnableWindow(hDecrypt, isEnable);
+        //     EnableWindow(hEncrypt, isEnable);
+        //     EnableWindow(hPassword, isEnable);
+        // }
+        //
+        // void setProgress(int total, int open, int close)
+        // {
+        //     wchar_t buffer[30];
+        //     swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
+        //     SetWindowTextW(hDetails, buffer);
+        //     SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
+        // }
+    }
 };

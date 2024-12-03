@@ -6,12 +6,38 @@ class Worker
     HCRYPTPROV hCrypt = 0;
 
 public:
+    static WINAPI DWORD staticMain(PVOID input)
+    {
+        const auto self = (Worker*)input;
+        self->threadMain();
+        delete self;
+        return 0;
+    }
+
     Worker()
     {
         if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
         {
         }
     }
+
+    ~Worker()
+    {
+        if (hCrypt != 0)
+        {
+            CryptReleaseContext(hCrypt, 0);
+        }
+    }
+
+    void startWork()
+    {
+        QueueUserWorkItem(staticMain, this, 0);
+    }
+
+    void threadMain()
+    {
+    }
+
 
     //    HCRYPTKEY hKey = 0;
     //    HANDLE plainFile = nullptr;
@@ -20,35 +46,6 @@ public:
     //    BYTE bBuffer[4096] = {};
     //
     //public:
-    //    static WINAPI DWORD staticMain(PVOID input)
-    //    {
-    //        const auto self = (Worker*)input;
-    //        self->threadMain();
-    //        delete self;
-    //        return 0;
-    //    }
-    //
-    //    Worker()
-    //    {
-    //    }
-    //
-    //    ~Worker()
-    //    {
-    //        if (hCrypt != 0)
-    //        {
-    //            CryptReleaseContext(hCrypt, 0);
-    //        }
-    //    }
-    //
-    void startWork()
-    {
-        //QueueUserWorkItem(staticMain, this, 0);
-    }
-
-    //
-    //    void threadMain()
-    //    {
-    //    }
     //
     //    int decryptReadSalt()
     //    {
