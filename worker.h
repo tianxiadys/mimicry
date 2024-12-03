@@ -7,12 +7,6 @@ class Worker {
     HWND hDialog = nullptr;
 
 public:
-    static void staticNew(HWND hDlg, PCSTR cPassword, PCWSTR wFileName, int isEncrypt) {
-        const auto self = new Worker;
-        self->hDialog = hDlg;
-        QueueUserWorkItem(staticMain, self, 0);
-    }
-
     static WINAPI DWORD staticMain(PVOID input) {
         const auto self = (Worker *) input;
         self->workerMain();
@@ -20,19 +14,23 @@ public:
         return 0;
     }
 
-    Worker() {
-        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
-        }
-    }
+//    Worker() {
+//        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
+//        }
+//    }
+//
+//    ~Worker() {
+//        if (hCrypt != 0) {
+//            CryptReleaseContext(hCrypt, 0);
+//        }
+//    }
 
-    ~Worker() {
-        if (hCrypt != 0) {
-            CryptReleaseContext(hCrypt, 0);
-        }
+    void workerStart() {
+        QueueUserWorkItem(staticMain, this, 0);
     }
 
     void workerMain() {
-        SendMessageW(hDialog, APP_RESULT, 0, (LPARAM) L"asdasd\n\n");
+        //SendMessageW(hDialog, APP_RESULT, 0, (LPARAM) L"asdasd\n\n");
     }
 
 

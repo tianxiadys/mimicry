@@ -189,40 +189,27 @@ public:
 
     void taskNext() {
         if (fileListNext()) {
-            Worker::staticNew(hDialog, cPassword, wFileName, bEncrypt);
+            const auto worker = new Worker;
+            worker->workerStart();
         }
     }
 
     void taskControl() {
-        taskProgress();
-        taskEnable();
-        taskMessage();
-    }
-
-    void taskProgress() {
         wchar_t wText[40] = {};
         swprintf_s(wText, L"总数%d - 成功%d - 失败%d", nTotal, nSuccess, nError);
         SetWindowTextW(hDetails, wText);
         SendMessageW(hProgress, PBM_SETPOS, nClose * 100 / nTotal, 0);
-    }
-
-    void taskEnable() {
         if (nClose >= nTotal) {
             EnableWindow(hDecrypt, 1);
             EnableWindow(hEncrypt, 1);
             EnableWindow(hPassword, 1);
+            if (wcslen(wMessage)) {
+                MessageBoxW(hDialog, wMessage, L"错误", 0);
+            }
         } else {
             EnableWindow(hDecrypt, 0);
             EnableWindow(hEncrypt, 0);
             EnableWindow(hPassword, 0);
-        }
-    }
-
-    void taskMessage() {
-        if (nClose >= nTotal) {
-            if (wcslen(wMessage)) {
-                MessageBoxW(hDialog, wMessage, L"错误", 0);
-            }
         }
     }
 };
