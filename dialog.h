@@ -10,26 +10,28 @@ class Dialog {
     HWND hProgress = nullptr;
     HWND hEncrypt = nullptr;
     HWND hDecrypt = nullptr;
+    wchar_t *pFileNext = nullptr;
+    int bEncrypt = 0;
+    int nTotal = 0;
+    int nClose = 0;
+    int nSuccess = 0;
+    int nError = 0;
     char cPassword[144] = {};
     wchar_t wFileList[8000] = {};
     wchar_t wFileName[260] = {};
-    wchar_t *pFileNext = nullptr;
-    int isEncrypt = 0;
-    int nTotal = 0;
-    int nOpen = 0;
-    int nClose = 0;
+    wchar_t wMessage[2000] = {};
 
 public:
     INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
             case APP_RESULT:
-                taskResult();
+                taskResult((PCWSTR) lParam);
                 return 1;
             case WM_CLOSE:
                 EndDialog(hDlg, 0);
                 return 1;
             case WM_COMMAND:
-                messageCommand(wParam);
+                messageCommand((int) wParam);
                 return 1;
             case WM_INITDIALOG:
                 messageInit(hDlg);
@@ -49,30 +51,21 @@ public:
         hDecrypt = GetDlgItem(hDlg, ID_DECRYPT);
     }
 
-    void messageCommand(WPARAM wParam) {
-        switch (wParam) {
-            case ID_DECRYPT: {
-                isEncrypt = 0;
+    void messageCommand(int itemId) {
+        switch (itemId) {
+            case ID_DECRYPT:
+                bEncrypt = 0;
                 taskStart();
                 break;
-            }
-            case ID_ENCRYPT: {
-                isEncrypt = 1;
+            case ID_ENCRYPT:
+                bEncrypt = 1;
                 taskStart();
                 break;
-            }
-            case ID_MASK: {
+            case ID_MASK:
                 passwordMask();
                 break;
-            }
             default:;
         }
-    }
-
-    void messageEnable(int enable) {
-        EnableWindow(hDecrypt, enable);
-        EnableWindow(hEncrypt, enable);
-        EnableWindow(hPassword, enable);
     }
 
     int passwordGet() {
@@ -91,8 +84,8 @@ public:
     }
 
     void passwordMask() {
-        const auto isShow = SendMessageW(hMask, BM_GETCHECK, 0, 0);
-        SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
+        const auto bMask = SendMessageW(hMask, BM_GETCHECK, 0, 0);
+        SendMessageW(hPassword, EM_SETPASSWORDCHAR, bMask ? 0 : 0x25CF, 0);
         InvalidateRect(hPassword, nullptr, 1);
     }
 
@@ -112,7 +105,7 @@ public:
         info.lpstrFile = wFileList;
         info.nMaxFile = 8000;
         info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_NONETWORKBUTTON;
-        if (!isEncrypt) {
+        if (!bEncrypt) {
             info.lpstrFilter = L"*.1\0*.1\0\0";
         }
         if (!GetCurrentDirectoryW(260, wFileList)) {
@@ -166,17 +159,24 @@ public:
         if (!fileListGet()) {
             return;
         }
+        *wMessage = 0;
         nTotal = fileListTotal();
-        nOpen = 0;
         nClose = 0;
+        nSuccess = 0;
+        nError = 0;
         for (int i = 0; i < 5; i++) {
             taskNext();
         }
         taskControl();
     }
 
-    void taskResult() {
-        nOpen--;
+    void taskResult(PCWSTR error) {
+        if (error) {
+            nError++;
+            wcscat_s(wMessage, error);
+        } else {
+            nSuccess++;
+        }
         nClose++;
         taskNext();
         taskControl();
@@ -184,16 +184,19 @@ public:
 
     void taskNext() {
         if (fileListNext()) {
-            Worker::staticNew(hDialog, cPassword, wFileName, isEncrypt);
-            nOpen++;
+            Worker::staticNew(hDialog, cPassword, wFileName, bEncrypt);
         }
     }
 
     void taskControl() {
-        wchar_t buffer[30];
-        swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", nTotal, nOpen, nClose);
-        SetWindowTextW(hDetails, buffer);
-        SendMessageW(hProgress, PBM_SETPOS, nClose * 100 / nTotal, 0);
-        messageEnable(nClose < nTotal ? 0 : 1);
+        if (nTotal > 0) {
+            wchar_t wText[40] = {};
+            swprintf_s(wText, L"总数%d - 成功%d - 失败%d", nTotal, nSuccess, nError);
+            SetWindowTextW(hDetails, wText);
+            SendMessageW(hProgress, PBM_SETPOS, nClose * 100 / nTotal, 0);
+            EnableWindow(hDecrypt, nClose >= nTotal);
+            EnableWindow(hEncrypt, nClose >= nTotal);
+            EnableWindow(hPassword, nClose >= nTotal);
+        }
     }
 };
