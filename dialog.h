@@ -194,16 +194,9 @@ public:
     }
 
     void taskControl() {
-        if (nTotal > 0) {
-            taskEnable(nClose >= nTotal);
-            taskProgress();
-        }
-    }
-
-    void taskEnable(int enable) {
-        EnableWindow(hDecrypt, enable);
-        EnableWindow(hEncrypt, enable);
-        EnableWindow(hPassword, enable);
+        taskProgress();
+        taskEnable();
+        taskMessage();
     }
 
     void taskProgress() {
@@ -211,5 +204,25 @@ public:
         swprintf_s(wText, L"总数%d - 成功%d - 失败%d", nTotal, nSuccess, nError);
         SetWindowTextW(hDetails, wText);
         SendMessageW(hProgress, PBM_SETPOS, nClose * 100 / nTotal, 0);
+    }
+
+    void taskEnable() {
+        if (nClose >= nTotal) {
+            EnableWindow(hDecrypt, 1);
+            EnableWindow(hEncrypt, 1);
+            EnableWindow(hPassword, 1);
+        } else {
+            EnableWindow(hDecrypt, 0);
+            EnableWindow(hEncrypt, 0);
+            EnableWindow(hPassword, 0);
+        }
+    }
+
+    void taskMessage() {
+        if (nClose >= nTotal) {
+            if (wcslen(wMessage)) {
+                MessageBoxW(hDialog, wMessage, L"错误", 0);
+            }
+        }
     }
 };

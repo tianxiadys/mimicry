@@ -32,7 +32,7 @@ public:
     }
 
     void workerMain() {
-        SendMessageW(hDialog, APP_RESULT, 0, 0);
+        SendMessageW(hDialog, APP_RESULT, 0, (LPARAM) L"asdasd\n\n");
     }
 
 
