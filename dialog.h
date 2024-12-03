@@ -1,5 +1,5 @@
 #pragma once
-#include "resource.h"
+#include "worker.h"
 
 class Dialog
 {
@@ -62,11 +62,17 @@ public:
             //progress.startWork(password, wParam);
             break;
         case ID_MASK:
-            const auto isShow = SendMessageW(hMask, BM_GETCHECK, 0, 0);
-            setMask((int)isShow);
+            messageMask();
             break;
         default: ;
         }
+    }
+
+    void messageMask()
+    {
+        const auto isShow = SendMessageW(hMask, BM_GETCHECK, 0, 0);
+        SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
+        InvalidateRect(hPassword, nullptr, 1);
     }
 
     int getPassword()
@@ -74,16 +80,26 @@ public:
         const auto count = GetWindowTextW(hPassword, wPassword, 48);
         if (count < 4)
         {
-            passwordTips(L"至少填写四位密码", L"密码太短");
+            getPasswordTips(L"至少填写四位密码", L"密码太短");
             return 0;
         }
         if (count > 40)
         {
-            passwordTips(L"至多填写四十位密码", L"密码太长");
+            getPasswordTips(L"至多填写四十位密码", L"密码太长");
             return 0;
         }
         WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr);
         return 1;
+    }
+
+    void getPasswordTips(PCWSTR text, PCWSTR title)
+    {
+        EDITBALLOONTIP info = {};
+        info.cbStruct = sizeof(EDITBALLOONTIP);
+        info.pszTitle = title;
+        info.pszText = text;
+        info.ttiIcon = TTI_WARNING;
+        SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
     }
 
     int getSelected(int isEncrypt)
@@ -110,39 +126,23 @@ public:
         }
         return 1;
     }
-
-    void passwordTips(PCWSTR text, PCWSTR title)
-    {
-        EDITBALLOONTIP info = {};
-        info.cbStruct = sizeof(EDITBALLOONTIP);
-        info.pszTitle = title;
-        info.pszText = text;
-        info.ttiIcon = TTI_WARNING;
-        SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
-    }
-
-    void setEnable(int isEnable)
-    {
-        EnableWindow(hDecrypt, isEnable);
-        EnableWindow(hEncrypt, isEnable);
-        EnableWindow(hPassword, isEnable);
-    }
-
-    void setMask(int isShow)
-    {
-        SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
-        InvalidateRect(hPassword, nullptr, 1);
-    }
-
-    void setProgress(int total, int open, int close)
-    {
-        wchar_t buffer[30];
-        swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
-        SetWindowTextW(hDetails, buffer);
-        SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
-    }
 };
 
+
+// void setEnable(int isEnable)
+// {
+//     EnableWindow(hDecrypt, isEnable);
+//     EnableWindow(hEncrypt, isEnable);
+//     EnableWindow(hPassword, isEnable);
+// }
+//
+// void setProgress(int total, int open, int close)
+// {
+//     wchar_t buffer[30];
+//     swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
+//     SetWindowTextW(hDetails, buffer);
+//     SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
+// }
 // public:
 //     void startWork(Password& password, WPARAM wParam)
 //     {

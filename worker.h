@@ -3,12 +3,16 @@
 
 class Worker
 {
+    HCRYPTPROV hCrypt = 0;
+
 public:
     Worker()
     {
+        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
+        {
+        }
     }
 
-    //    HCRYPTPROV hCrypt = 0;
     //    HCRYPTKEY hKey = 0;
     //    HANDLE plainFile = nullptr;
     //    HANDLE secretFile = nullptr;
@@ -26,9 +30,6 @@ public:
     //
     //    Worker()
     //    {
-    //        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
-    //        {
-    //        }
     //    }
     //
     //    ~Worker()
