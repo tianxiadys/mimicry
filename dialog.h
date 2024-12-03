@@ -10,12 +10,11 @@ class Dialog
     HWND hProgress = nullptr;
     HWND hEncrypt = nullptr;
     HWND hDecrypt = nullptr;
-    PCWSTR pNext = nullptr;
-    int isEncrypt = 0;
-    int nIndex = 0;
-    int nTotal = 0;
     char cPassword[144] = {};
     wchar_t wFileList[8000] = {};
+    wchar_t wFileName[260] = {};
+    wchar_t* pFileNext = nullptr;
+    int isEncrypt = 0;
 
 public:
     INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -57,34 +56,20 @@ public:
         case ID_DECRYPT:
             {
                 isEncrypt = 0;
-                if (!passwordGet())
-                {
-                    return;
-                }
-                if (!fileListGet())
-                {
-                    return;
-                }
-                //startWork();
+                taskStart();
                 break;
             }
         case ID_ENCRYPT:
             {
                 isEncrypt = 1;
-                if (!passwordGet())
-                {
-                    return;
-                }
-                if (!fileListGet())
-                {
-                    return;
-                }
-                //startWork();
+                taskStart();
                 break;
             }
         case ID_MASK:
-            passwordMask();
-            break;
+            {
+                passwordMask();
+                break;
+            }
         default: ;
         }
     }
@@ -152,7 +137,47 @@ public:
         return 1;
     }
 
-    void jobStart()
+    int fileListTotal()
+    {
+        int total = 0;
+        for (int i = 0; i < 8000; i++)
+        {
+            if (wFileList[i] == 0)
+            {
+                if (wFileList[i + 1] == 0)
+                {
+                    break;
+                }
+                total++;
+            }
+        }
+        return total;
+    }
+
+    int fileListNext()
+    {
+        if (pFileNext == nullptr)
+        {
+            pFileNext = wFileList;
+        }
+        pFileNext = wcschr(pFileNext, 0);
+        if (pFileNext != nullptr)
+        {
+            pFileNext++;
+            if (*pFileNext == 0)
+            {
+                pFileNext = nullptr;
+            }
+        }
+        if (pFileNext != nullptr)
+        {
+            PathCombineW(wFileName, wFileList, pFileNext);
+            return 1;
+        }
+        return 0;
+    }
+
+    void taskStart()
     {
         if (!passwordGet())
         {
