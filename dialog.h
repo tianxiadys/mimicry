@@ -79,7 +79,9 @@ public:
             passwordTips(L"至多填写四十位密码", L"密码太长");
             return 0;
         }
-        WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr);
+        if (!WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr)) {
+            return 0;
+        }
         return 1;
     }
 
@@ -108,7 +110,10 @@ public:
         if (!bEncrypt) {
             info.lpstrFilter = L"*.1\0*.1\0\0";
         }
-        if (!GetCurrentDirectoryW(260, wFileList)) {
+        if (!GetModuleFileNameW(nullptr, wFileList, 260)) {
+            return 0;
+        }
+        if (!PathRemoveFileSpecW(wFileList)) {
             return 0;
         }
         if (!GetOpenFileNameW(&info)) {
@@ -118,6 +123,8 @@ public:
             }
             return 0;
         }
+        wFileList[info.nFileOffset - 1] = 0;
+        pFileNext = wFileList;
         return 1;
     }
 
@@ -135,19 +142,17 @@ public:
     }
 
     int fileListNext() {
-        if (pFileNext == nullptr) {
-            pFileNext = wFileList;
-        }
-        pFileNext = wcschr(pFileNext, 0);
         if (pFileNext != nullptr) {
-            pFileNext++;
-            if (*pFileNext == 0) {
-                pFileNext = nullptr;
+            pFileNext = wcschr(pFileNext, 0);
+            if (pFileNext != nullptr) {
+                pFileNext++;
+                if (*pFileNext != 0) {
+                    PathCombineW(wFileName, wFileList, pFileNext);
+                    return 1;
+                } else {
+                    pFileNext = nullptr;
+                }
             }
-        }
-        if (pFileNext != nullptr) {
-            PathCombineW(wFileName, wFileList, pFileNext);
-            return 1;
         }
         return 0;
     }
@@ -190,13 +195,21 @@ public:
 
     void taskControl() {
         if (nTotal > 0) {
-            wchar_t wText[40] = {};
-            swprintf_s(wText, L"总数%d - 成功%d - 失败%d", nTotal, nSuccess, nError);
-            SetWindowTextW(hDetails, wText);
-            SendMessageW(hProgress, PBM_SETPOS, nClose * 100 / nTotal, 0);
-            EnableWindow(hDecrypt, nClose >= nTotal);
-            EnableWindow(hEncrypt, nClose >= nTotal);
-            EnableWindow(hPassword, nClose >= nTotal);
+            taskEnable(nClose >= nTotal);
+            taskProgress();
         }
+    }
+
+    void taskEnable(int enable) {
+        EnableWindow(hDecrypt, enable);
+        EnableWindow(hEncrypt, enable);
+        EnableWindow(hPassword, enable);
+    }
+
+    void taskProgress() {
+        wchar_t wText[40] = {};
+        swprintf_s(wText, L"总数%d - 成功%d - 失败%d", nTotal, nSuccess, nError);
+        SetWindowTextW(hDetails, wText);
+        SendMessageW(hProgress, PBM_SETPOS, nClose * 100 / nTotal, 0);
     }
 };

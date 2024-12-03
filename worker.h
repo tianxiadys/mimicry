@@ -4,10 +4,12 @@
 
 class Worker {
     HCRYPTPROV hCrypt = 0;
+    HWND hDialog = nullptr;
 
 public:
     static void staticNew(HWND hDlg, PCSTR cPassword, PCWSTR wFileName, int isEncrypt) {
         const auto self = new Worker;
+        self->hDialog = hDlg;
         QueueUserWorkItem(staticMain, self, 0);
     }
 
@@ -30,6 +32,7 @@ public:
     }
 
     void workerMain() {
+        SendMessageW(hDialog, APP_RESULT, 0, 0);
     }
 
 
