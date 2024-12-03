@@ -4,7 +4,7 @@ static Dialog* dialog = nullptr;
 
 static INT_PTR CALLBACK staticMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    return dialog->dialogMain(hDlg, message, wParam, lParam);
+    return dialog->messageMain(hDlg, message, wParam, lParam);
 }
 
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)

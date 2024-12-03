@@ -10,6 +10,10 @@ class Dialog
     HWND hMask = nullptr;
     HWND hPassword = nullptr;
     HWND hProgress = nullptr;
+    PCWSTR pNext = nullptr;
+    int isEncrypt = 0;
+    int nIndex = 0;
+    int nTotal = 0;
     wchar_t wPassword[48] = {};
     char cPassword[144] = {};
     wchar_t wCurrent[260] = {};
@@ -21,7 +25,7 @@ public:
         GetCurrentDirectoryW(260, wCurrent);
     }
 
-    INT_PTR dialogMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+    INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
         {
@@ -58,21 +62,25 @@ public:
         switch (wParam)
         {
         case ID_DECRYPT:
+            {
+                isEncrypt = 0;
+                startWork();
+                break;
+            }
         case ID_ENCRYPT:
-            //progress.startWork(password, wParam);
-            break;
+            {
+                isEncrypt = 1;
+                startWork();
+                break;
+            }
         case ID_MASK:
-            messageMask();
-            break;
+            {
+                const auto isShow = SendMessageW(hMask, BM_GETCHECK, 0, 0);
+                setMask((int)isShow);
+                break;
+            }
         default: ;
         }
-    }
-
-    void messageMask()
-    {
-        const auto isShow = SendMessageW(hMask, BM_GETCHECK, 0, 0);
-        SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
-        InvalidateRect(hPassword, nullptr, 1);
     }
 
     int getPassword()
@@ -102,7 +110,7 @@ public:
         SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM)&info);
     }
 
-    int getSelected(int isEncrypt)
+    int getSelected()
     {
         OPENFILENAMEW info = {};
         info.lStructSize = sizeof(OPENFILENAMEW);
@@ -126,84 +134,59 @@ public:
         }
         return 1;
     }
+
+    void setEnable(int isEnable)
+    {
+        EnableWindow(hDecrypt, isEnable);
+        EnableWindow(hEncrypt, isEnable);
+        EnableWindow(hPassword, isEnable);
+    }
+
+    void setMask(int isShow)
+    {
+        SendMessageW(hPassword, EM_SETPASSWORDCHAR, isShow ? 0 : 0x25CF, 0);
+        InvalidateRect(hPassword, nullptr, 1);
+    }
+
+    void setProgress(int total, int open, int close)
+    {
+        wchar_t buffer[30];
+        swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
+        SetWindowTextW(hDetails, buffer);
+        SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
+    }
+
+    void jobStart()
+    {
+        memset(cPassword, 0, 144);
+        wmemset(wSelected, 0, 8000);
+        pNext = nullptr;
+        nIndex = 0;
+        nTotal = 0;
+        if (!getPassword())
+        {
+            return;
+        }
+        if (!getSelected())
+        {
+            return;
+        }
+    }
+
+    //     void nextWork(Control& control, WPARAM wParam)
+    //     {
+    //         // if (wParam == 0)
+    //         // {
+    //         //     control.setEnable(0);
+    //         // }
+    //         // for (; nOpen < 5; nOpen++)
+    //         // {
+    //         //     const auto fileName = nextFile();
+    //         //     if (fileName)
+    //         //     {
+    //         //         const auto worker = new Worker;
+    //         //         worker->startWork();
+    //         //     }
+    //         // }
+    //     }
 };
-
-
-// void setEnable(int isEnable)
-// {
-//     EnableWindow(hDecrypt, isEnable);
-//     EnableWindow(hEncrypt, isEnable);
-//     EnableWindow(hPassword, isEnable);
-// }
-//
-// void setProgress(int total, int open, int close)
-// {
-//     wchar_t buffer[30];
-//     swprintf_s(buffer, L"总数%d - 进行中%d - 完成%d", total, open, close);
-//     SetWindowTextW(hDetails, buffer);
-//     SendMessageW(hProgress, PBM_SETPOS, close * 100 / total, 0);
-// }
-// public:
-//     void startWork(Password& password, WPARAM wParam)
-//     {
-//         memset(cPassword, 0, 144);
-//         wmemset(wSelected, 0, 8000);
-//         pNext = nullptr;
-//         isEncrypt = wParam == ID_ENCRYPT;
-//         nIndex = 0;
-//         nTotal = 0;
-//         nOpen = 0;
-//         nClose = 0;
-//         if (!password.getPassword(cPassword, 144))
-//         {
-//             return;
-//         }
-//         if (!password.getSelected(wSelected, 8000, isEncrypt))
-//         {
-//             return;
-//         }
-//         while (nextFile() != nullptr)
-//         {
-//             nTotal++;
-//         }
-//         SendMessageW(hDialog, APP_NEXT, 0, 0);
-//     }
-//
-//     void nextWork(Control& control, WPARAM wParam)
-//     {
-//         // if (wParam == 0)
-//         // {
-//         //     control.setEnable(0);
-//         // }
-//         // for (; nOpen < 5; nOpen++)
-//         // {
-//         //     const auto fileName = nextFile();
-//         //     if (fileName)
-//         //     {
-//         //         const auto worker = new Worker;
-//         //         worker->startWork();
-//         //     }
-//         // }
-//     }
-//
-//     PCWSTR nextFile()
-//     {
-//         if (pNext == nullptr)
-//         {
-//             pNext = wSelected;
-//             nIndex = 0;
-//         }
-//         pNext = wcschr(pNext, 0);
-//         if (pNext != nullptr)
-//         {
-//             nIndex++;
-//             pNext++;
-//             if (*pNext == 0)
-//             {
-//                 pNext = nullptr;
-//             }
-//         }
-//         return pNext;
-//     }
-//
-// public:
