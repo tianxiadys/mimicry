@@ -41,16 +41,6 @@ public:
         }
     }
 
-    void messageInit(HWND hDlg) {
-        hDialog = hDlg;
-        hPassword = GetDlgItem(hDlg, ID_PASSWORD);
-        hMask = GetDlgItem(hDlg, ID_MASK);
-        hDetails = GetDlgItem(hDlg, ID_DETAILS);
-        hProgress = GetDlgItem(hDlg, ID_PROGRESS);
-        hEncrypt = GetDlgItem(hDlg, ID_ENCRYPT);
-        hDecrypt = GetDlgItem(hDlg, ID_DECRYPT);
-    }
-
     void messageCommand(int itemId) {
         switch (itemId) {
             case ID_DECRYPT:
@@ -66,6 +56,16 @@ public:
                 break;
             default:;
         }
+    }
+
+    void messageInit(HWND hDlg) {
+        hDialog = hDlg;
+        hPassword = GetDlgItem(hDlg, ID_PASSWORD);
+        hMask = GetDlgItem(hDlg, ID_MASK);
+        hDetails = GetDlgItem(hDlg, ID_DETAILS);
+        hProgress = GetDlgItem(hDlg, ID_PROGRESS);
+        hEncrypt = GetDlgItem(hDlg, ID_ENCRYPT);
+        hDecrypt = GetDlgItem(hDlg, ID_DECRYPT);
     }
 
     int passwordGet() {
@@ -195,21 +195,30 @@ public:
     }
 
     void taskControl() {
+        taskProgress();
+        taskEnable();
+        taskMessage();
+    }
+
+    void taskProgress() {
         wchar_t wText[40] = {};
         swprintf_s(wText, L"总数%d - 成功%d - 失败%d", nTotal, nSuccess, nError);
         SetWindowTextW(hDetails, wText);
         SendMessageW(hProgress, PBM_SETPOS, nClose * 100 / nTotal, 0);
+    }
+
+    void taskEnable() {
+        const auto bEnable = nClose >= nTotal;
+        EnableWindow(hDecrypt, bEnable);
+        EnableWindow(hEncrypt, bEnable);
+        EnableWindow(hPassword, bEnable);
+    }
+
+    void taskMessage() {
         if (nClose >= nTotal) {
-            EnableWindow(hDecrypt, 1);
-            EnableWindow(hEncrypt, 1);
-            EnableWindow(hPassword, 1);
             if (wcslen(wMessage)) {
                 MessageBoxW(hDialog, wMessage, L"错误", 0);
             }
-        } else {
-            EnableWindow(hDecrypt, 0);
-            EnableWindow(hEncrypt, 0);
-            EnableWindow(hPassword, 0);
         }
     }
 };
