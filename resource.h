@@ -9,7 +9,4 @@
 #define ID_ENCRYPT   1004
 #define ID_DECRYPT   1005
 #define ID_DETAILS   1006
-#define ID_PROGRESS  1007
-#define ID_HOME      1008
 #define RC_DIALOG    MAKEINTRESOURCEW(ID_DIALOG)
-#define APP_RESULT   0x8001
