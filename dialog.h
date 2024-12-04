@@ -1,5 +1,6 @@
 #pragma once
 
+#include "openFile.h"
 #include "worker.h"
 
 class Dialog {
@@ -10,15 +11,12 @@ class Dialog {
     HWND hProgress = nullptr;
     HWND hEncrypt = nullptr;
     HWND hDecrypt = nullptr;
-    wchar_t *pFileNext = nullptr;
     int bEncrypt = 0;
     int nTotal = 0;
     int nClose = 0;
     int nSuccess = 0;
     int nError = 0;
     char cPassword[144] = {};
-    wchar_t wFileList[8000] = {};
-    wchar_t wFileName[260] = {};
     wchar_t wMessage[2000] = {};
 
 public:
@@ -100,62 +98,6 @@ public:
         SendMessageW(hPassword, EM_SHOWBALLOONTIP, 0, (LPARAM) &info);
     }
 
-    int fileListGet() {
-        OPENFILENAMEW info = {};
-        info.lStructSize = sizeof(OPENFILENAMEW);
-        info.hwndOwner = hDialog;
-        info.lpstrFile = wFileList;
-        info.nMaxFile = 8000;
-        info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_HIDEREADONLY | OFN_NONETWORKBUTTON;
-        if (!bEncrypt) {
-            info.lpstrFilter = L"*.1\0*.1\0\0";
-        }
-        if (!GetModuleFileNameW(nullptr, wFileList, 260)) {
-            return 0;
-        }
-        if (!PathRemoveFileSpecW(wFileList)) {
-            return 0;
-        }
-        if (!GetOpenFileNameW(&info)) {
-            const auto reason = CommDlgExtendedError();
-            if (reason == FNERR_BUFFERTOOSMALL) {
-                MessageBoxW(hDialog, L"选择的文件太多了", L"错误", 0);
-            }
-            return 0;
-        }
-        wFileList[info.nFileOffset - 1] = 0;
-        pFileNext = wFileList;
-        return 1;
-    }
-
-    int fileListTotal() {
-        int total = 0;
-        for (int i = 0; i < 8000; i++) {
-            if (wFileList[i] == 0) {
-                if (wFileList[i + 1] == 0) {
-                    break;
-                }
-                total++;
-            }
-        }
-        return total;
-    }
-
-    int fileListNext() {
-        if (pFileNext != nullptr) {
-            pFileNext = wcschr(pFileNext, 0);
-            if (pFileNext != nullptr) {
-                pFileNext++;
-                if (*pFileNext != 0) {
-                    PathCombineW(wFileName, wFileList, pFileNext);
-                    return 1;
-                } else {
-                    pFileNext = nullptr;
-                }
-            }
-        }
-        return 0;
-    }
 
     void taskStart() {
         if (!passwordGet()) {
