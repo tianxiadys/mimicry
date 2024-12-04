@@ -19,6 +19,7 @@ public:
                 return 1;
             case WM_INITDIALOG:
                 messageInit(hDlg);
+                detailsInit();
                 return 1;
             default:
                 return 0;
@@ -46,7 +47,20 @@ public:
     }
 
     void detailsInit() {
+        detailsAddColumn(0, 200, L"文件名");
+        detailsAddColumn(1, 70, L"结果");
+    }
 
+    void detailsAddColumn(int index, int width, PCWSTR title) {
+        RECT rect = {};
+        rect.left = width;
+        MapDialogRect(hDialog, &rect);
+        LVCOLUMNW info = {};
+        info.mask = LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+        info.cx = rect.left;
+        info.pszText = (PWSTR) title;
+        info.iSubItem = index;
+        SendMessageW(hDetails, LVM_INSERTCOLUMN, index, (LPARAM) &info);
     }
 
     int passwordGet(PSTR output, int outputSize) {
