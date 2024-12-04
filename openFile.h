@@ -1,6 +1,6 @@
 #pragma once
 
-class OpenFileDialog {
+class OpenFile {
     wchar_t *pNext = nullptr;
     wchar_t wBuffer[8000] = {};
     wchar_t wName[260] = {};
