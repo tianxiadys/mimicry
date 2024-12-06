@@ -3,6 +3,7 @@
 #include "resource.h"
 
 class DialogDetails {
+    HWND hDialog = nullptr;
     HWND hDetails = nullptr;
 
     void addColumn(int index, int width, PCWSTR title) {
@@ -31,7 +32,7 @@ class DialogDetails {
     int getPixelX(int dlu) {
         RECT rect = {};
         rect.left = dlu;
-        MapDialogRect(hDetails, &rect);
+        MapDialogRect(hDialog, &rect);
         return rect.left;
     }
 
@@ -45,9 +46,10 @@ class DialogDetails {
 
 public:
     void messageInit(HWND hDlg) {
+        hDialog = hDlg;
         hDetails = GetDlgItem(hDlg, ID_DETAILS);
         addColumn(0, 160, L"文件名");
-        addColumn(1, 90, L"状态");
+        addColumn(1, 100, L"状态");
     }
 
     void addItem(int index, PCWSTR name, PCWSTR status) {
@@ -56,7 +58,7 @@ public:
         setText(offset, 1, status);
     }
 
-    void delItem(int index) {
+    void removeItem(int index) {
         const auto offset = getOffset(index);
         SendMessageW(hDetails, LVM_DELETEITEM, offset, 0);
     }
