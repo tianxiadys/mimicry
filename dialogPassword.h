@@ -5,6 +5,8 @@
 class DialogPassword {
     HWND hMask = nullptr;
     HWND hPassword = nullptr;
+    wchar_t wPassword[48] = {};
+    char cPassword[144] = {};
 
     void passwordTips(PCWSTR text, PCWSTR title) {
         EDITBALLOONTIP info = {};
@@ -29,20 +31,19 @@ public:
         }
     }
 
-    int getPassword(PSTR output, int outputSize) {
-        wchar_t wPassword[48] = {};
+    PCSTR getPassword() {
         const auto wSize = GetWindowTextW(hPassword, wPassword, 48);
         if (wSize < 4) {
             passwordTips(L"至少填写四位密码", L"密码太短");
-            return 0;
+            return nullptr;
         }
         if (wSize > 40) {
             passwordTips(L"至多填写四十位密码", L"密码太长");
-            return 0;
+            return nullptr;
         }
-        if (!WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, output, outputSize, nullptr, nullptr)) {
-            return 0;
+        if (!WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr)) {
+            return nullptr;
         }
-        return 1;
+        return cPassword;
     }
 };

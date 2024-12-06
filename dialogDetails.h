@@ -18,6 +18,7 @@ class DialogDetails {
     int addItem(int index) {
         LVITEMW info = {};
         info.mask = LVIF_PARAM;
+        info.iItem = index;
         info.lParam = index;
         return (int) SendMessageW(hDetails, LVM_INSERTITEM, 0, (LPARAM) &info);
     }
@@ -39,6 +40,7 @@ class DialogDetails {
     void setText(int offset, int subId, PCWSTR text) {
         LVITEMW info = {};
         info.mask = LVIF_TEXT;
+        info.iItem = offset;
         info.iSubItem = subId;
         info.pszText = (PWSTR) text;
         SendMessageW(hDetails, LVM_SETITEMTEXT, offset, (LPARAM) &info);
@@ -48,6 +50,7 @@ public:
     void messageInit(HWND hDlg) {
         hDialog = hDlg;
         hDetails = GetDlgItem(hDlg, ID_DETAILS);
+        SendMessageW(hDetails, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
         addColumn(0, 160, L"文件名");
         addColumn(1, 100, L"状态");
     }
