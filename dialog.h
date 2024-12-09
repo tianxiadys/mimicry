@@ -6,11 +6,18 @@
 #include "worker.h"
 
 class Dialog {
-public:
     DialogDetails details = {};
     DialogExplorer explorer = {};
     DialogPassword password = {};
 
+    void dialogSetIcon(HWND hDlg) {
+        const auto hInst = GetModuleHandleW(nullptr);
+        const auto hIcon = LoadIconW(hInst, RC_ICON);
+        SendMessageW(hDlg, WM_SETICON, ICON_SMALL, (LPARAM) hIcon);
+        SendMessageW(hDlg, WM_SETICON, ICON_BIG, (LPARAM) hIcon);
+    }
+
+public:
     INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
             case WM_CLOSE:
@@ -23,6 +30,7 @@ public:
                 details.messageInit(hDlg);
                 explorer.messageInit(hDlg);
                 password.messageInit(hDlg);
+                dialogSetIcon(hDlg);
                 return 1;
             default:
                 return 0;
