@@ -42,11 +42,13 @@ class Dialog {
     }
 
     void commandEncrypt(int bEncrypt) {
-        if (!password.checkSize()) {
-            return;
-        }
-        if (!explorer.openFile(bEncrypt)) {
-            return;
+        if (const auto key = password.getPassword()) {
+            if (explorer.openFile(bEncrypt)) {
+                while (const auto next = explorer.getNext()) {
+                    const auto worker = new DialogWorker;
+                    worker->workerStart(hDialog, key, next, bEncrypt);
+                }
+            }
         }
     }
 
