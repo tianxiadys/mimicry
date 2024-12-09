@@ -2,38 +2,38 @@
 
 #include "resource.h"
 
-class Worker {
+class DialogWorker {
     HCRYPTPROV hCrypt = 0;
     HWND hDialog = nullptr;
 
 public:
-    static WINAPI DWORD staticMain(PVOID input) {
-        const auto self = (Worker *) input;
-        self->workerMain();
-        delete self;
-        return 0;
-    }
-
-//    Worker() {
-//        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
-//        }
-//    }
-//
-//    ~Worker() {
-//        if (hCrypt != 0) {
-//            CryptReleaseContext(hCrypt, 0);
-//        }
-//    }
-
-    void workerStart() {
-        QueueUserWorkItem(staticMain, this, 0);
-    }
-
-    void workerMain() {
-        //SendMessageW(hDialog, APP_RESULT, 0, (LPARAM) L"asdasd\n\n");
-    }
-
-
+    //    static WINAPI DWORD staticMain(PVOID input) {
+    //        const auto self = (Worker *) input;
+    //        self->workerMain();
+    //        delete self;
+    //        return 0;
+    //    }
+    //
+    //    Worker() {
+    //        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
+    //        }
+    //    }
+    //
+    //    ~Worker() {
+    //        if (hCrypt != 0) {
+    //            CryptReleaseContext(hCrypt, 0);
+    //        }
+    //    }
+    //
+    //    void workerStart() {
+    //        QueueUserWorkItem(staticMain, this, 0);
+    //    }
+    //
+    //    void workerMain() {
+    //        //SendMessageW(hDialog, APP_RESULT, 0, (LPARAM) L"asdasd\n\n");
+    //    }
+    //
+    //
     //    HCRYPTKEY hKey = 0;
     //    HANDLE plainFile = nullptr;
     //    HANDLE secretFile = nullptr;

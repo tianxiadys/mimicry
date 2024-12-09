@@ -59,8 +59,7 @@ public:
             if (pNext != nullptr) {
                 pNext++;
                 if (*pNext != 0) {
-                    PathCombineW(wOutput, wBuffer, pNext);
-                    return wOutput;
+                    return PathCombineW(wOutput, wBuffer, pNext);
                 } else {
                     pNext = nullptr;
                 }

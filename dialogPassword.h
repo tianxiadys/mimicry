@@ -31,19 +31,23 @@ public:
         }
     }
 
-    PCSTR getPassword() {
+    int checkSize() {
         const auto wSize = GetWindowTextW(hPassword, wPassword, 48);
         if (wSize < 4) {
             passwordTips(L"至少填写四位密码", L"密码太短");
-            return nullptr;
+            return 0;
         }
         if (wSize > 40) {
             passwordTips(L"至多填写四十位密码", L"密码太长");
-            return nullptr;
+            return 0;
         }
         if (!WideCharToMultiByte(CP_UTF8, 0, wPassword, -1, cPassword, 144, nullptr, nullptr)) {
-            return nullptr;
+            return 0;
         }
+        return 1;
+    }
+
+    PCSTR getPassword() {
         return cPassword;
     }
 };
