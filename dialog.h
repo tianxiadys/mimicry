@@ -3,7 +3,7 @@
 #include "dialogDetails.h"
 #include "dialogExplorer.h"
 #include "dialogPassword.h"
-#include "worker.h"
+#include "master.h"
 
 class Dialog {
     DialogDetails details = {};
