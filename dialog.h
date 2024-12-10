@@ -42,6 +42,9 @@ class Dialog {
     }
 
     void commandEncrypt(int bEncrypt) {
+        const auto worker = new DialogWorker;
+        worker->workerInit();
+        delete worker;
         //        if (const auto key = password.getPassword()) {
         //            if (explorer.openFile(bEncrypt)) {
         //                while (const auto next = explorer.getNext()) {
