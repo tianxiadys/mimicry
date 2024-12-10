@@ -42,47 +42,46 @@ class Dialog {
     }
 
     void commandEncrypt(int bEncrypt) {
-        if (const auto key = password.getPassword()) {
-            if (explorer.openFile(bEncrypt)) {
-                while (const auto next = explorer.getNext()) {
-                    const auto worker = new DialogWorker;
-                    worker->workerStart(hDialog, key, next, bEncrypt);
-                }
-            }
-        }
+        //        if (const auto key = password.getPassword()) {
+        //            if (explorer.openFile(bEncrypt)) {
+        //                while (const auto next = explorer.getNext()) {
+        //                    const auto worker = new DialogWorker;
+        //                    worker->workerStart(hDialog, key, next, bEncrypt);
+        //                }
+        //            }
+        //        }
+        //
+        //    void taskStart() {
+        //        *wMessage = 0;
+        //        nTotal = fileListTotal();
+        //        nClose = 0;
+        //        nSuccess = 0;
+        //        nError = 0;
+        //        for (int i = 0; i < 5; i++) {
+        //            taskNext();
+        //        }
+        //        taskControl();
+        //    }
+        //
+        //    void taskResult(PCWSTR error) {
+        //        if (error) {
+        //            nError++;
+        //            wcscat_s(wMessage, error);
+        //        } else {
+        //            nSuccess++;
+        //        }
+        //        nClose++;
+        //        taskNext();
+        //        taskControl();
+        //    }
+        //
+        //    void taskNext() {
+        //        if (fileListNext()) {
+        //            const auto worker = new Worker;
+        //            worker->workerStart();
+        //        }
+        //    }
     }
-
-    //
-    //    void taskStart() {
-    //        *wMessage = 0;
-    //        nTotal = fileListTotal();
-    //        nClose = 0;
-    //        nSuccess = 0;
-    //        nError = 0;
-    //        for (int i = 0; i < 5; i++) {
-    //            taskNext();
-    //        }
-    //        taskControl();
-    //    }
-    //
-    //    void taskResult(PCWSTR error) {
-    //        if (error) {
-    //            nError++;
-    //            wcscat_s(wMessage, error);
-    //        } else {
-    //            nSuccess++;
-    //        }
-    //        nClose++;
-    //        taskNext();
-    //        taskControl();
-    //    }
-    //
-    //    void taskNext() {
-    //        if (fileListNext()) {
-    //            const auto worker = new Worker;
-    //            worker->workerStart();
-    //        }
-    //    }
 
 public:
     INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
