@@ -3,7 +3,7 @@
 #include "dialogDetails.h"
 #include "dialogExplorer.h"
 #include "dialogPassword.h"
-#include "dialogWorker.h"
+#include "workerCrypt.h"
 
 class Dialog {
     DialogDetails details = {};
@@ -42,13 +42,10 @@ class Dialog {
     }
 
     void commandEncrypt(int bEncrypt) {
-        const auto worker = new DialogWorker;
-        worker->workerInit();
-        delete worker;
         //        if (const auto key = password.getPassword()) {
         //            if (explorer.openFile(bEncrypt)) {
         //                while (const auto next = explorer.getNext()) {
-        //                    const auto worker = new DialogWorker;
+        //                    const auto worker = new WorkerCrypt;
         //                    worker->workerStart(hDialog, key, next, bEncrypt);
         //                }
         //            }
