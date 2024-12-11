@@ -3,13 +3,14 @@
 #include "dialogDetails.h"
 #include "dialogExplorer.h"
 #include "dialogPassword.h"
-#include "coreRC4.h"
+#include "workerData.h"
 
 class Dialog {
     DialogDetails details = {};
     DialogExplorer explorer = {};
     DialogPassword password = {};
     HWND hDialog = nullptr;
+    WorkerData *first = nullptr;
 
     void messageInit(HWND hDlg) {
         hDialog = hDlg;
@@ -22,10 +23,8 @@ class Dialog {
                 commandClear();
                 break;
             case ID_DECRYPT:
-                commandEncrypt(0);
-                break;
             case ID_ENCRYPT:
-                commandEncrypt(1);
+                commandEncrypt(wParam);
                 break;
             default:;
         }
@@ -41,7 +40,14 @@ class Dialog {
     void commandClear() {
     }
 
-    void commandEncrypt(int bEncrypt) {
+    void commandEncrypt(WPARAM wParam) {
+        if (!password.checkSize()) {
+            return;
+        }
+        if (!explorer.selectFile()) {
+            return;
+        }
+
         //        if (const auto key = password.getPassword()) {
         //            if (explorer.openFile(bEncrypt)) {
         //                while (const auto next = explorer.getNext()) {
@@ -83,9 +89,16 @@ class Dialog {
         //    }
     }
 
+    void workerUpdate(WorkerData *worker) {
+        //details.updateItem(worker->index, worker->showName, worker->showStatus);
+    }
+
 public:
     INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
+            case APP_UPDATE:
+                workerUpdate((WorkerData *) lParam);
+                return 1;
             case WM_CLOSE:
                 EndDialog(hDlg, 0);
                 return 1;

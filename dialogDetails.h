@@ -5,7 +5,6 @@
 class DialogDetails {
     HWND hDialog = nullptr;
     HWND hDetails = nullptr;
-    int itemNext = 0;
 
     void addColumn(int index, int width, PCWSTR title) {
         LVCOLUMNW info = {};
@@ -19,7 +18,7 @@ class DialogDetails {
     int addItem(int index) {
         LVITEMW info = {};
         info.mask = LVIF_PARAM;
-        info.iItem = itemNext++;
+        info.iItem = index;
         info.lParam = index;
         return (int) SendMessageW(hDetails, LVM_INSERTITEM, 0, (LPARAM) &info);
     }
