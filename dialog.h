@@ -3,7 +3,7 @@
 #include "dialogDetails.h"
 #include "dialogExplorer.h"
 #include "dialogPassword.h"
-#include "workerCrypt.h"
+#include "coreRC4.h"
 
 class Dialog {
     DialogDetails details = {};
@@ -45,7 +45,7 @@ class Dialog {
         //        if (const auto key = password.getPassword()) {
         //            if (explorer.openFile(bEncrypt)) {
         //                while (const auto next = explorer.getNext()) {
-        //                    const auto worker = new WorkerCrypt;
+        //                    const auto worker = new CoreRC4;
         //                    worker->workerStart(hDialog, key, next, bEncrypt);
         //                }
         //            }
