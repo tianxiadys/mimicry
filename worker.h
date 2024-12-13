@@ -2,30 +2,31 @@
 
 #include "resource.h"
 
-class DialogWorker {
-    WorkerCrypto crypto = {};
+class Worker {
+    HWND hDialog = nullptr;
 
 public:
-    HWND hDialog = nullptr;
-    DialogWorker *next = nullptr;
+    Worker *next = nullptr;
     int index = 0;
+    int close = 0;
     WCHAR column1[260] = {};
     WCHAR column2[300] = {};
-    int close = 0;
 
-    int initWorker() {
-
-    }
-
-    void threadMain() {
+    void initWorker(HWND hDlg, PCWSTR file, PCSTR key, WPARAM wParam, int index) {
 
     }
 
-    static WINAPI DWORD staticMain(PVOID input) {
-        const auto self = (DialogWorker *) input;
-        self->threadMain();
+    static WINAPI DWORD workerMain(PVOID input) {
+        const auto worker = (Worker *) input;
+        worker->runWorker();
         return 0;
+        QueueUserWorkItem(workerMain, worker, 0);
     }
+
+    void runWorker() {
+
+    }
+
 
     int startWork(HWND hDlg) {
         hDialog = hDlg;

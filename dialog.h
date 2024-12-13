@@ -3,13 +3,13 @@
 #include "dialogDetails.h"
 #include "dialogExplorer.h"
 #include "dialogPassword.h"
-#include "dialogMaster.h"
+#include "master.h"
 
 class Dialog {
     DialogDetails details = {};
     DialogExplorer explorer = {};
-    DialogMaster master = {};
     DialogPassword password = {};
+    Master master = {};
 
     void messageCommand(WPARAM wParam) {
         switch (wParam) {
@@ -25,7 +25,7 @@ class Dialog {
     }
 
     void messageUpdate(LPARAM lParam) {
-        const auto worker = (DialogWorker *) lParam;
+        const auto worker = (Worker *) lParam;
         details.updateItem(worker->index, worker->column1, worker->column2);
     }
 
@@ -45,11 +45,7 @@ class Dialog {
         }
         const auto key = password.getKey();
         while (const auto file = explorer.getFile()) {
-            if (wParam == ID_ENCRYPT) {
-                master.newEncrypt(file, key);
-            } else {
-                master.newDecrypt(file, key);
-            }
+            master.startWorker(file, key, wParam);
         }
     }
 
@@ -69,8 +65,8 @@ public:
             case WM_INITDIALOG:
                 details.messageInit(hDlg);
                 explorer.messageInit(hDlg);
-                master.messageInit(hDlg);
                 password.messageInit(hDlg);
+                master.messageInit(hDlg);
                 return 1;
             default:
                 return 0;
