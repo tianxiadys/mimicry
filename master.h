@@ -15,16 +15,18 @@ public:
         const auto worker = new Worker;
         if (first) {
             worker->index = first->index + 1;
+            worker->next = first;
         }
-        worker->next = first;
         first = worker;
+        worker->initWorker(hDialog, file, key, wParam);
+        worker->runWorker();
     }
 
-    Worker *removeClosed() {
+    Worker *removeSucceed() {
         auto before = first;
         auto current = first;
         while (current != nullptr) {
-            if (current->close) {
+            if (current->success) {
                 if (before == first) {
                     first = current->next;
                 } else {

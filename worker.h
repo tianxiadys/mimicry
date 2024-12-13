@@ -3,28 +3,25 @@
 #include "resource.h"
 
 class Worker {
-    //HWND hDialog = nullptr;
+    HWND hDialog = nullptr;
+    HCRYPTPROV hCrypt = 0;
+    HCRYPTHASH hHash = 0;
+    HCRYPTKEY hKey = 0;
+    BYTE bufferIV[16] = {};
 
-public:
-    Worker *next = nullptr;
-    int index = 0;
-    int close = 0;
-    WCHAR column1[260] = {};
-    WCHAR column2[300] = {};
-    //    void initWorker(HWND hDlg, PCWSTR file, PCSTR key, WPARAM wParam, int index) {
-    //
-    //    }
-    //
-    //    static WINAPI DWORD workerMain(PVOID input) {
-    //        const auto worker = (Worker *) input;
-    //        worker->runWorker();
-    //        return 0;
-    //        QueueUserWorkItem(workerMain, worker, 0);
-    //    }
-    //
-    //    void runWorker() {
-    //
-    //    }
+    static WINAPI DWORD staticMain(PVOID input) {
+        const auto worker = (Worker *) input;
+        worker->workerMain();
+        return 0;
+    }
+
+    void workerMain() {
+        postMessage();
+    }
+
+    void postMessage() {
+        PostMessageW(hDialog, APP_UPDATE, 0, (LPARAM) this);
+    }
     //
     //
     //    int startWork(HWND hDlg) {
@@ -34,10 +31,6 @@ public:
     //#pragma once
     //
     //class WorkerCrypto {
-    //    HCRYPTPROV hCrypt = 0;
-    //    HCRYPTHASH hHash = 0;
-    //    HCRYPTKEY hKey = 0;
-    //    BYTE bufferIV[16] = {};
     //
     //public:
     //    ~WorkerCrypto() {
@@ -106,4 +99,25 @@ public:
     //        return bufferIV;
     //    }
     //};
+
+public:
+    Worker *next = nullptr;
+    int index = 0;
+    int success = 0;
+    WCHAR column1[260] = {};
+    WCHAR column2[300] = {};
+
+    void initWorker(HWND hDlg, PCWSTR file, PCSTR key, WPARAM wParam) {
+        hDialog = hDlg;
+        StringCchCopyW(column2, 300, L"等待");
+        if (wParam == ID_ENCRYPT) {
+            StringCchPrintfW(column1, 260, L"加密：%s", file);
+        } else {
+            StringCchPrintfW(column1, 260, L"解密：%s", file);
+        }
+    }
+
+    void runWorker() {
+        QueueUserWorkItem(staticMain, this, 0);
+    }
 };
