@@ -30,7 +30,7 @@ class Dialog {
     }
 
     void commandClear() {
-        while (const auto worker = master.removeClose()) {
+        while (const auto worker = master.removeClosed()) {
             details.removeItem(worker->index);
             delete worker;
         }
