@@ -8,18 +8,10 @@ class WorkerCrypto {
 
 public:
     ~WorkerCrypto() {
-        if (hHash) {
-            CryptDestroyHash(hHash);
-        }
-        if (hKey) {
-            CryptDestroyKey(hKey);
-        }
-        if (hCrypt) {
-            CryptReleaseContext(hCrypt, 0);
-        }
+        releaseCrypt();
     }
 
-    int initContext() {
+    int initCrypt() {
         return CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT);
     }
 
@@ -34,7 +26,7 @@ public:
             return 0;
         }
         DWORD mode = CRYPT_MODE_OFB;
-        if (!CryptSetKeyParam(hKey, KP_MODE, (PCBYTE) & mode, 0)) {
+        if (!CryptSetKeyParam(hKey, KP_MODE, (PBYTE) &mode, 0)) {
             return 0;
         }
         return 1;
@@ -56,6 +48,21 @@ public:
             return 0;
         }
         return 1;
+    }
+
+    void releaseCrypt() {
+        if (hHash) {
+            CryptDestroyHash(hHash);
+            hHash = 0;
+        }
+        if (hKey) {
+            CryptDestroyKey(hKey);
+            hKey = 0;
+        }
+        if (hCrypt) {
+            CryptReleaseContext(hCrypt, 0);
+            hCrypt = 0;
+        }
     }
 
     int encryptData(PBYTE pData, int size) {

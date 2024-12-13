@@ -31,7 +31,7 @@ public:
         }
     }
 
-    int checkSize() {
+    int openPassword() {
         const auto wSize = GetWindowTextW(hPassword, wPassword, 48);
         if (wSize < 4) {
             passwordTips(L"至少填写四位密码", L"密码太短");

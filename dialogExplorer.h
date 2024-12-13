@@ -13,7 +13,7 @@ public:
         hDialog = hDlg;;
     }
 
-    int selectFile() {
+    int openExplorer() {
         OPENFILENAMEW info = {};
         info.lStructSize = sizeof(OPENFILENAMEW);
         info.hwndOwner = hDialog;

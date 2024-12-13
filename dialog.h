@@ -10,11 +10,9 @@ class Dialog {
     DialogExplorer explorer = {};
     DialogPassword password = {};
     WorkerMaster master = {};
-    HWND hDialog = nullptr;
 
     void messageInit(HWND hDlg) {
-        hDialog = hDlg;
-        initIcon();
+        initIcon(hDlg);
     }
 
     void messageCommand(WPARAM wParam) {
@@ -30,26 +28,31 @@ class Dialog {
         }
     }
 
-    void initIcon() {
+    void initIcon(HWND hDlg) {
         const auto hInst = GetModuleHandleW(nullptr);
         const auto hIcon = LoadIconW(hInst, RC_ICON);
-        SendMessageW(hDialog, WM_SETICON, ICON_SMALL, (LPARAM) hIcon);
-        SendMessageW(hDialog, WM_SETICON, ICON_BIG, (LPARAM) hIcon);
+        SendMessageW(hDlg, WM_SETICON, ICON_SMALL, (LPARAM) hIcon);
+        SendMessageW(hDlg, WM_SETICON, ICON_BIG, (LPARAM) hIcon);
     }
 
     void commandClear() {
+        while (const auto runner = master.removeFinish()) {
+            details.removeItem(runner->index);
+            delete runner;
+        }
     }
 
     void commandEncrypt(WPARAM wParam) {
-        if (!password.checkSize()) {
+        if (!password.openPassword()) {
             return;
         }
-        if (!explorer.selectFile()) {
+        if (!explorer.openExplorer()) {
             return;
         }
+        const auto key = password.getPassword();
 
         //        if (const auto key = password.getPassword()) {
-        //            if (explorer.openFile(bEncrypt)) {
+        //            if (explorer.openExplorer(bEncrypt)) {
         //                while (const auto next = explorer.getNext()) {
         //                    const auto worker = new CoreRC4;
         //                    worker->workerStart(hDialog, key, next, bEncrypt);

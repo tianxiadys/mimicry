@@ -4,7 +4,9 @@
 
 class WorkerRunner {
     WorkerCrypto crypto = {};
-    
+
 public:
     WorkerRunner *next = nullptr;
+    int index = 0;
+    int finish = 0;
 };
