@@ -55,20 +55,17 @@ public:
         addColumn(1, 100, L"状态");
     }
 
-    void addItem(int index, PCWSTR name, PCWSTR status) {
-        const auto offset = addItem(index);
-        setText(offset, 0, name);
-        setText(offset, 1, status);
-    }
-
     void removeItem(int index) {
         const auto offset = getOffset(index);
         SendMessageW(hDetails, LVM_DELETEITEM, offset, 0);
     }
 
-    void updateItem(int index, PCWSTR name, PCWSTR status) {
-        const auto offset = getOffset(index);
-        setText(offset, 0, name);
-        setText(offset, 1, status);
+    void updateItem(int index, PCWSTR column1, PCWSTR column2) {
+        auto offset = getOffset(index);
+        if (offset < 0) {
+            offset = addItem(index);
+        }
+        setText(offset, 0, column1);
+        setText(offset, 1, column2);
     }
 };

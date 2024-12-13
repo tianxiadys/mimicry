@@ -24,10 +24,15 @@ class Dialog {
         }
     }
 
+    void messageUpdate(LPARAM lParam) {
+        const auto worker = (DialogWorker *) lParam;
+        details.updateItem(worker->index, worker->column1, worker->column2);
+    }
+
     void commandClear() {
-        while (const auto runner = master.removeClose()) {
-            details.removeItem(runner->index);
-            delete runner;
+        while (const auto worker = master.removeClose()) {
+            details.removeItem(worker->index);
+            delete worker;
         }
     }
 
@@ -51,6 +56,9 @@ class Dialog {
 public:
     INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
+            case APP_UPDATE:
+                messageUpdate(lParam);
+                return 1;
             case WM_CLOSE:
                 EndDialog(hDlg, 0);
                 return 1;

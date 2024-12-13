@@ -1,6 +1,6 @@
 #pragma once
 
-#include "workerCrypto.h"
+#include "resource.h"
 
 class DialogWorker {
     WorkerCrypto crypto = {};
@@ -9,6 +9,8 @@ public:
     HWND hDialog = nullptr;
     DialogWorker *next = nullptr;
     int index = 0;
+    WCHAR column1[260] = {};
+    WCHAR column2[300] = {};
     int close = 0;
 
     int initWorker() {
