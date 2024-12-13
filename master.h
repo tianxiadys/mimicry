@@ -4,7 +4,7 @@
 
 class Master {
     HWND hDialog = nullptr;
-    Worker *first = nullptr;
+    Worker *pFirst = nullptr;
 
 public:
     void messageInit(HWND hDlg) {
@@ -13,22 +13,22 @@ public:
 
     void startWorker(PCWSTR file, PCSTR key, WPARAM wParam) {
         const auto worker = new Worker;
-        if (first) {
-            worker->index = first->index + 1;
-            worker->next = first;
+        if (pFirst) {
+            worker->index = pFirst->index + 1;
+            worker->next = pFirst;
         }
-        first = worker;
+        pFirst = worker;
         worker->initWorker(hDialog, file, key, wParam);
         worker->runWorker();
     }
 
     Worker *removeSucceed() {
-        auto before = first;
-        auto current = first;
+        auto before = pFirst;
+        auto current = pFirst;
         while (current != nullptr) {
             if (current->success) {
-                if (before == first) {
-                    first = current->next;
+                if (before == pFirst) {
+                    pFirst = current->next;
                 } else {
                     before->next = current->next;
                 }
