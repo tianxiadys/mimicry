@@ -38,7 +38,7 @@ public:
         return 1;
     }
 
-    PCWSTR getNext() {
+    PCWSTR getFile() {
         if (pNext != nullptr) {
             pNext = wcschr(pNext, 0);
             if (pNext != nullptr) {

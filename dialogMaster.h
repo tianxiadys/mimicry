@@ -1,25 +1,23 @@
 #pragma once
 
-#include "workerRunner.h"
+#include "dialogWorker.h"
 
-class WorkerMaster {
+class DialogMaster {
     HWND hDialog = nullptr;
-    WorkerRunner *first = nullptr;
+    DialogWorker *first = nullptr;
 
 public:
     void messageInit(HWND hDlg) {
-        hDialog = hDlg;;
+        hDialog = hDlg;
     }
 
-    void startEncrypt(PCWSTR, PCSTR) {
-
+    void newEncrypt(PCWSTR file, PCSTR key) {
     }
 
-    void startDecrypt(PCWSTR, PCSTR) {
-
+    void newDecrypt(PCWSTR file, PCSTR key) {
     }
 
-    WorkerRunner *removeClose() {
+    DialogWorker *removeClose() {
         auto before = first;
         auto current = first;
         while (current != nullptr) {
