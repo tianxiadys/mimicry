@@ -2,15 +2,15 @@
 
 #include "dialogDetails.h"
 #include "dialogExplorer.h"
+#include "dialogMaster.h"
 #include "dialogPassword.h"
-#include "workerData.h"
 
 class Dialog {
     DialogDetails details = {};
     DialogExplorer explorer = {};
+    DialogMaster master = {};
     DialogPassword password = {};
     HWND hDialog = nullptr;
-    WorkerData *first = nullptr;
 
     void messageInit(HWND hDlg) {
         hDialog = hDlg;
@@ -89,16 +89,9 @@ class Dialog {
         //    }
     }
 
-    void workerUpdate(WorkerData *worker) {
-        //details.updateItem(worker->index, worker->showName, worker->showStatus);
-    }
-
 public:
     INT_PTR messageMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
-            case APP_UPDATE:
-                workerUpdate((WorkerData *) lParam);
-                return 1;
             case WM_CLOSE:
                 EndDialog(hDlg, 0);
                 return 1;
