@@ -47,7 +47,7 @@ public:
         return 1;
     }
 
-    PCSTR getPassword() {
+    PCSTR getKey() {
         return cPassword;
     }
 };

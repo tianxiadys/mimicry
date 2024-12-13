@@ -11,10 +11,6 @@ class Dialog {
     DialogPassword password = {};
     WorkerMaster master = {};
 
-    void messageInit(HWND hDlg) {
-        initIcon(hDlg);
-    }
-
     void messageCommand(WPARAM wParam) {
         switch (wParam) {
             case ID_CLEAR:
@@ -28,15 +24,8 @@ class Dialog {
         }
     }
 
-    void initIcon(HWND hDlg) {
-        const auto hInst = GetModuleHandleW(nullptr);
-        const auto hIcon = LoadIconW(hInst, RC_ICON);
-        SendMessageW(hDlg, WM_SETICON, ICON_SMALL, (LPARAM) hIcon);
-        SendMessageW(hDlg, WM_SETICON, ICON_BIG, (LPARAM) hIcon);
-    }
-
     void commandClear() {
-        while (const auto runner = master.removeFinish()) {
+        while (const auto runner = master.removeClose()) {
             details.removeItem(runner->index);
             delete runner;
         }
@@ -49,47 +38,14 @@ class Dialog {
         if (!explorer.openExplorer()) {
             return;
         }
-        const auto key = password.getPassword();
-
-        //        if (const auto key = password.getPassword()) {
-        //            if (explorer.openExplorer(bEncrypt)) {
-        //                while (const auto next = explorer.getNext()) {
-        //                    const auto worker = new CoreRC4;
-        //                    worker->workerStart(hDialog, key, next, bEncrypt);
-        //                }
-        //            }
-        //        }
-        //
-        //    void taskStart() {
-        //        *wMessage = 0;
-        //        nTotal = fileListTotal();
-        //        nClose = 0;
-        //        nSuccess = 0;
-        //        nError = 0;
-        //        for (int i = 0; i < 5; i++) {
-        //            taskNext();
-        //        }
-        //        taskControl();
-        //    }
-        //
-        //    void taskResult(PCWSTR error) {
-        //        if (error) {
-        //            nError++;
-        //            wcscat_s(wMessage, error);
-        //        } else {
-        //            nSuccess++;
-        //        }
-        //        nClose++;
-        //        taskNext();
-        //        taskControl();
-        //    }
-        //
-        //    void taskNext() {
-        //        if (fileListNext()) {
-        //            const auto worker = new Worker;
-        //            worker->workerStart();
-        //        }
-        //    }
+        const auto key = password.getKey();
+        while (const auto next = explorer.getNext()) {
+            if (wParam == ID_ENCRYPT) {
+                master.startEncrypt(next, key);
+            } else {
+                master.startDecrypt(next, key);
+            }
+        }
     }
 
 public:
@@ -106,7 +62,7 @@ public:
                 details.messageInit(hDlg);
                 explorer.messageInit(hDlg);
                 password.messageInit(hDlg);
-                messageInit(hDlg);
+                master.messageInit(hDlg);
                 return 1;
             default:
                 return 0;
