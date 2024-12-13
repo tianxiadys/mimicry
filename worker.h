@@ -4,16 +4,17 @@
 
 class Worker {
     HWND hDialog = nullptr;
-    WPARAM command = 0;
-    WCHAR inputFile[260] = {};
-    WCHAR outputFile[260] = {};
-    CHAR inputKey[144] = {};
     HCRYPTPROV hCrypt = 0;
     HCRYPTHASH hHash = 0;
     HCRYPTKEY hKey = 0;
-    BYTE bufferIV[16] = {};
     HANDLE hInput = nullptr;
     HANDLE hOutput = nullptr;
+    DWORD fileSize = 0;
+    WCHAR inputFile[260] = {};
+    WCHAR outputFile[260] = {};
+    CHAR inputKey[144] = {};
+    BYTE bufferIV[16] = {};
+    BYTE bufferData[8000] = {};
 
     static WINAPI DWORD staticMain(PVOID input) {
         const auto worker = (Worker *) input;
@@ -67,10 +68,6 @@ class Worker {
         return 1;
     }
 
-    int encryptData(PBYTE pData, int size) {
-        return CryptEncrypt(hKey, 0, 0, 0, pData, (PDWORD) &size, size);
-    }
-
     void releaseCrypt() {
         if (hHash) {
             CryptDestroyHash(hHash);
@@ -86,6 +83,23 @@ class Worker {
         }
     }
 
+    int openFile() {
+        hInput = CreateFileW(inputFile, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
+        if (!hInput) {
+            return 0;
+        }
+        fileSize = GetFileSize(hInput, nullptr);
+        if (!fileSize) {
+            wcscpy_s(column2, L"忽略：输入文件长度为零");
+            return 0;
+        }
+        hOutput = CreateFileW(outputFile, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, 0, nullptr);
+        if (!hOutput) {
+            return 0;
+        }
+        return 1;
+    }
+
     void closeFile() {
         if (hInput) {
             CloseHandle(hInput);
@@ -96,30 +110,46 @@ class Worker {
             hOutput = nullptr;
         }
     }
-    //
-    //
-    //    int startWork(HWND hDlg) {
-    //        hDialog = hDlg;
-    //        return QueueUserWorkItem(staticMain, this, 0);
-    //    }
-    //#pragma once
-    //
-    //class WorkerCrypto {
-    //
-    //public:
-    //    ~WorkerCrypto() {
-    //        releaseCrypt();
-    //    }
-    //
-    //
-    //
-    //    PCBYTE getIV() {
-    //        return bufferIV;
-    //    }
-    //};
+
+    int encryptBlock() {
+        DWORD realSize = 8000;
+        if (!ReadFile(hInput, bufferData, 8000, &realSize, nullptr)) {
+            return 0;
+        }
+        if (realSize == 0) {
+            success = 1;
+            return 0;
+        }
+        if (!CryptEncrypt(hKey, 0, 0, 0, bufferData, &realSize, 8000)) {
+            return 0;
+        }
+        if (!WriteFile(hOutput, bufferData, realSize, &realSize, nullptr)) {
+            return 0;
+        }
+        return 1;
+    }
+
+    int decryptBlock() {
+        DWORD realSize = 8000;
+        if (!ReadFile(hInput, bufferData, 8000, &realSize, nullptr)) {
+            return 0;
+        }
+        if (realSize == 0) {
+            success = 1;
+            return 0;
+        }
+        if (!CryptDecrypt(hKey, 0, 0, 0, bufferData, &realSize)) {
+            return 0;
+        }
+        if (!WriteFile(hOutput, bufferData, realSize, &realSize, nullptr)) {
+            return 0;
+        }
+        return 1;
+    }
 
 public:
     Worker *next = nullptr;
+    int encrypt = 0;
     int index = 0;
     int success = 0;
     WCHAR column1[260] = {};
@@ -127,13 +157,14 @@ public:
 
     void initWorker(HWND hDlg, PCWSTR file, PCSTR key, WPARAM wParam) {
         hDialog = hDlg;
-        command = wParam;
         wcscpy_s(inputFile, file);
         strcpy_s(inputKey, key);
         if (wParam == ID_ENCRYPT) {
+            encrypt = 1;
             swprintf_s(column1, L"加密：%s", file);
             wcscpy_s(column2, L"等待");
         } else {
+            encrypt = 0;
             swprintf_s(column1, L"解密：%s", file);
             wcscpy_s(column2, L"等待");
         }
