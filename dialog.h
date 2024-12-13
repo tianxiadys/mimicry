@@ -2,14 +2,14 @@
 
 #include "dialogDetails.h"
 #include "dialogExplorer.h"
-#include "dialogMaster.h"
 #include "dialogPassword.h"
+#include "workerMaster.h"
 
 class Dialog {
     DialogDetails details = {};
     DialogExplorer explorer = {};
-    DialogMaster master = {};
     DialogPassword password = {};
+    WorkerMaster master = {};
     HWND hDialog = nullptr;
 
     void messageInit(HWND hDlg) {

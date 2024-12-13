@@ -1,6 +1,6 @@
 #pragma once
 
-class CoreRC4 {
+class WorkerCrypto {
     //    HCRYPTPROV hCrypt = 0;
     //    HCRYPTHASH hHash = 0;
     //    HCRYPTKEY hKey = 0;
