@@ -6,26 +6,25 @@ class DialogExplorer {
     HWND hDialog = nullptr;
     PCWSTR pNext = nullptr;
     WCHAR wOutput[260] = {};
+    WCHAR wStart[260] = {};
     WCHAR wBuffer[8000] = {};
 
 public:
     void messageInit(HWND hDlg) {
-        hDialog = hDlg;;
+        hDialog = hDlg;
+        GetModuleFileNameW(nullptr, wStart, 260);
+        PathRemoveFileSpecW(wStart);
     }
 
     int openExplorer() {
+        *wBuffer = 0;
         OPENFILENAMEW info = {};
         info.lStructSize = sizeof(OPENFILENAMEW);
         info.hwndOwner = hDialog;
         info.lpstrFile = wBuffer;
         info.nMaxFile = 8000;
+        info.lpstrInitialDir = wStart;
         info.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER;
-        if (!GetModuleFileNameW(nullptr, wBuffer, 260)) {
-            return 0;
-        }
-        if (!PathRemoveFileSpecW(wBuffer)) {
-            return 0;
-        }
         if (!GetOpenFileNameW(&info)) {
             const auto reason = CommDlgExtendedError();
             if (reason == FNERR_BUFFERTOOSMALL) {

@@ -61,7 +61,7 @@ class Worker {
     }
 
     int initCrypt() {
-        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
+        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, 0)) {
             postError();
             return 0;
         }
@@ -94,11 +94,6 @@ class Worker {
             postError();
             return 0;
         }
-        DWORD mode = CRYPT_MODE_OFB;
-        if (!CryptSetKeyParam(hKey, KP_MODE, (PCBYTE) &mode, 0)) {
-            postError();
-            return 0;
-        }
         if (!CryptSetKeyParam(hKey, KP_IV, bufferIV, 0)) {
             postError();
             return 0;
@@ -108,17 +103,17 @@ class Worker {
 
     int openFile() {
         hInput = CreateFileW(inputFile, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-        if (!hInput) {
+        if (hInput == INVALID_HANDLE_VALUE) {
             postError();
             return 0;
         }
         fileSize = GetFileSize(hInput, nullptr);
-        if (!fileSize) {
+        if (fileSize == 0) {
             postIgnore(L"输入文件长度为零");
             return 0;
         }
-        hOutput = CreateFileW(outputFile, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, 0, nullptr);
-        if (!hOutput) {
+        hOutput = CreateFileW(outputFile, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, 0, nullptr);
+        if (hOutput == INVALID_HANDLE_VALUE) {
             postError();
             return 0;
         }
@@ -126,7 +121,15 @@ class Worker {
     }
 
     int encryptFile() {
-
+        if (PathMatchSpecW(inputFile, L"*.exe")) {
+            postIgnore(L"不能加密exe文件");
+            return 0;
+        }
+        if (PathMatchSpecW(inputFile, L"*.dll")) {
+            postIgnore(L"不能加密dll文件");
+            return 0;
+        }
+        wcscat_s(outputFile, L".1");
         return 1;
     }
 
@@ -161,6 +164,14 @@ class Worker {
             return 0;
         }
         if (realSize == 0) {
+            if (!CryptEncrypt(hKey, 0, 1, 0, bufferData, &realSize, 8000)) {
+                postError();
+                return 0;
+            }
+            if (!WriteFile(hOutput, bufferData, realSize, &realSize, nullptr)) {
+                postError();
+                return 0;
+            }
             postSuccess();
             return 0;
         }
@@ -201,6 +212,11 @@ class Worker {
     }
 
     int decryptFile() {
+        if (!PathMatchSpecW(inputFile, L"*.1")) {
+            postIgnore(L"不是加密文件");
+            return 0;
+        }
+        PathRemoveExtensionW(outputFile);
         return 1;
     }
 
@@ -238,6 +254,14 @@ class Worker {
             return 0;
         }
         if (realSize == 0) {
+            if (!CryptDecrypt(hKey, 0, 1, 0, bufferData, &realSize)) {
+                postError();
+                return 0;
+            }
+            if (!WriteFile(hOutput, bufferData, realSize, &realSize, nullptr)) {
+                postError();
+                return 0;
+            }
             postSuccess();
             return 0;
         }
@@ -311,6 +335,7 @@ public:
     void initWorker(HWND hDlg, PCWSTR file, PCSTR key, WPARAM wParam) {
         hDialog = hDlg;
         wcscpy_s(inputFile, file);
+        wcscpy_s(outputFile, file);
         strcpy_s(inputKey, key);
         if (wParam == ID_ENCRYPT) {
             encrypt = 1;
