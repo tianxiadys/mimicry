@@ -19,47 +19,45 @@ class Worker {
 
     static WINAPI DWORD staticMain(PVOID input) {
         const auto worker = (Worker *) input;
-        worker->workerMain();
-        worker->workerRelease();
+        if (worker->encrypt) {
+            worker->encryptMain();
+        } else {
+            worker->decryptMain();
+        }
+        worker->releaseWorker();
         return 0;
     }
 
-    void workerMain() {
-        if (!initCrypt()) {
-            return;
-        }
-        if (encrypt) {
-            if (!encryptHead()) {
-                return;
-            }
-        } else {
-            if (!decryptHead()) {
-                return;
-            }
-        }
+    void postProgress(double value) {
+        swprintf_s(column2, L"进度：%.1f%%", value);
+        postMessage();
     }
 
-    void workerRelease() {
-        if (hHash) {
-            CryptDestroyHash(hHash);
-            hHash = 0;
-        }
-        if (hKey) {
-            CryptDestroyKey(hKey);
-            hKey = 0;
-        }
-        if (hCrypt) {
-            CryptReleaseContext(hCrypt, 0);
-            hCrypt = 0;
-        }
-        if (hInput) {
-            CloseHandle(hInput);
-            hInput = nullptr;
-        }
-        if (hOutput) {
-            CloseHandle(hOutput);
-            hOutput = nullptr;
-        }
+    void postSuccess() {
+        success = 1;
+        wcscpy_s(column2, L"成功");
+        postMessage();
+    }
+
+    void postIgnore(PCWSTR message) {
+        success = 1;
+        swprintf_s(column2, L"忽略：%s", message);
+        postMessage();
+    }
+
+    void postError() {
+        const auto errorId = GetLastError();
+        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, errorId, 0, column2, 300, nullptr);
+        postMessage();
+    }
+
+    void postError(PCWSTR message) {
+        swprintf_s(column2, L"错误：%s", message);
+        postMessage();
+    }
+
+    void postMessage() {
+        PostMessageW(hDialog, APP_UPDATE, 0, (LPARAM) this);
     }
 
     int initCrypt() {
@@ -127,6 +125,11 @@ class Worker {
         return 1;
     }
 
+    int encryptFile() {
+
+        return 1;
+    }
+
     int encryptHead() {
         if (!initIV()) {
             return 0;
@@ -169,6 +172,35 @@ class Worker {
             postError();
             return 0;
         }
+        return 1;
+    }
+
+    void encryptMain() {
+        if (!initCrypt()) {
+            return;
+        }
+        if (!encryptFile()) {
+            return;
+        }
+        if (!openFile()) {
+            return;
+        }
+        if (!encryptHead()) {
+            return;
+        }
+        DWORD realSize = 0;
+        DWORD loopSize = 0;
+        while (encryptBlock()) {
+            realSize += 8000;
+            loopSize += 1;
+            if (loopSize > 1000) {
+                loopSize = 0;
+                postProgress(realSize * 100.0 / fileSize);
+            }
+        }
+    }
+
+    int decryptFile() {
         return 1;
     }
 
@@ -220,31 +252,52 @@ class Worker {
         return 1;
     }
 
-    void postSuccess() {
-        success = 1;
-        wcscpy_s(column2, L"成功");
-        postMessage();
+    void decryptMain() {
+        if (!initCrypt()) {
+            return;
+        }
+        if (!decryptFile()) {
+            return;
+        }
+        if (!openFile()) {
+            return;
+        }
+        if (!decryptHead()) {
+            return;
+        }
+        DWORD realSize = 0;
+        DWORD loopSize = 0;
+        while (decryptBlock()) {
+            realSize += 8000;
+            loopSize += 1;
+            if (loopSize > 1000) {
+                loopSize = 0;
+                postProgress(realSize * 100.0 / fileSize);
+            }
+        }
     }
 
-    void postIgnore(PCWSTR message) {
-        success = 1;
-        swprintf_s(column2, L"忽略：%s", message);
-        postMessage();
-    }
-
-    void postError() {
-        const auto errorId = GetLastError();
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, errorId, 0, column2, 300, nullptr);
-        postMessage();
-    }
-
-    void postError(PCWSTR message) {
-        swprintf_s(column2, L"错误：%s", message);
-        postMessage();
-    }
-
-    void postMessage() {
-        PostMessageW(hDialog, APP_UPDATE, 0, (LPARAM) this);
+    void releaseWorker() {
+        if (hHash) {
+            CryptDestroyHash(hHash);
+            hHash = 0;
+        }
+        if (hKey) {
+            CryptDestroyKey(hKey);
+            hKey = 0;
+        }
+        if (hCrypt) {
+            CryptReleaseContext(hCrypt, 0);
+            hCrypt = 0;
+        }
+        if (hInput) {
+            CloseHandle(hInput);
+            hInput = nullptr;
+        }
+        if (hOutput) {
+            CloseHandle(hOutput);
+            hOutput = nullptr;
+        }
     }
 
 public:
