@@ -44,7 +44,12 @@ public:
         }
     }
 
-    void encryptHead(PBYTE pData, DWORD size) {
+    void initKey(PCSTR pKey) {
+        const auto size = strlen(pKey);
+        initKey((PCBYTE) pKey, size);
+    }
+
+    void encryptZero(PBYTE pData, DWORD size) {
         for (int x = 0; x < size; x++) {
             pData[x] = getNext();
         }
@@ -54,5 +59,14 @@ public:
         for (int x = 0; x < size; x++) {
             pData[x] ^= getNext();
         }
+    }
+
+    int verifyZero(PCBYTE pData, DWORD size) {
+        for (int x = 0; x < size; x++) {
+            if (pData[x] != getNext()) {
+                return 0;
+            }
+        }
+        return 1;
     }
 };

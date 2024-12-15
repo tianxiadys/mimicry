@@ -10,7 +10,6 @@ class Worker {
     HANDLE hOutput = nullptr;
     DWORD fileSize = 0;
     WCHAR inputFile[260] = {};
-    CHAR inputKey[48] = {};
     WCHAR outputFile[260] = {};
     BYTE bufferData[8000] = {};
 
@@ -87,7 +86,7 @@ class Worker {
         }
     }
 
-    int encryptFile() {
+    int encryptPath() {
         if (PathMatchSpecW(inputFile, L"*.exe")) {
             postIgnore(L"不能加密exe文件");
             return 0;
@@ -102,7 +101,7 @@ class Worker {
 
     int encryptHead() {
         DWORD realSize = 0;
-        rc4.encryptData(bufferData, 16);
+        rc4.encryptZero(bufferData, 16);
         if (!WriteFile(hOutput, bufferData, 16, &realSize, nullptr)) {
             postError();
             return 0;
@@ -129,10 +128,7 @@ class Worker {
     }
 
     void encryptMain() {
-        if (!initCrypt()) {
-            return;
-        }
-        if (!encryptFile()) {
+        if (!encryptPath()) {
             return;
         }
         if (!openFile()) {
@@ -153,7 +149,7 @@ class Worker {
         }
     }
 
-    int decryptFile() {
+    int decryptPath() {
         if (!PathMatchSpecW(inputFile, L"*.1")) {
             postIgnore(L"不是加密文件");
             return 0;
@@ -164,25 +160,15 @@ class Worker {
 
     int decryptHead() {
         DWORD readSize = 0;
-        if (!ReadFile(hInput, bufferData, 32, &readSize, nullptr)) {
+        if (!ReadFile(hInput, bufferData, 16, &readSize, nullptr)) {
             postError();
             return 0;
         }
-        if (readSize != 32) {
+        if (readSize != 16) {
             postError(L"加密文件长度太短");
             return 0;
         }
-        memcpy_s(bufferIV, 16, bufferData, 16);
-        memcpy_s(bufferB1, 16, bufferData + 16, 16);
-        if (!initKey()) {
-            return 0;
-        }
-        readSize = 16;
-        if (!CryptDecrypt(hKey, 0, 0, 0, bufferB1, &readSize)) {
-            postError();
-            return 0;
-        }
-        if (memcmp(bufferIV, bufferB1, 16) != 0) {
+        if (!rc4.verifyZero(bufferData, 16)) {
             postError(L"密码错误");
             return 0;
         }
@@ -208,10 +194,7 @@ class Worker {
     }
 
     void decryptMain() {
-        if (!initCrypt()) {
-            return;
-        }
-        if (!decryptFile()) {
+        if (!decryptPath()) {
             return;
         }
         if (!openFile()) {
@@ -244,7 +227,7 @@ public:
         hDialog = hDlg;
         wcscpy_s(inputFile, file);
         wcscpy_s(outputFile, file);
-        strcpy_s(inputKey, key);
+        rc4.initKey(key);
         if (wParam == ID_ENCRYPT) {
             encrypt = 1;
             swprintf_s(column1, L"加密：%s", file);
