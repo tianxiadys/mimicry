@@ -1,20 +1,17 @@
 #pragma once
 
 #include "resource.h"
+#include "workerRC4.h"
 
 class Worker {
+    WorkerRC4 rc4 = {};
     HWND hDialog = nullptr;
-    HCRYPTPROV hCrypt = 0;
-    HCRYPTHASH hHash = 0;
-    HCRYPTKEY hKey = 0;
     HANDLE hInput = nullptr;
     HANDLE hOutput = nullptr;
     DWORD fileSize = 0;
     WCHAR inputFile[260] = {};
     CHAR inputKey[48] = {};
     WCHAR outputFile[260] = {};
-    BYTE bufferIV[16] = {};
-    BYTE bufferB1[16] = {};
     BYTE bufferData[8000] = {};
 
     static WINAPI DWORD staticMain(PVOID input) {
@@ -24,7 +21,7 @@ class Worker {
         } else {
             worker->decryptMain();
         }
-        worker->releaseWorker();
+        worker->closeFile();
         return 0;
     }
 
@@ -60,47 +57,6 @@ class Worker {
         PostMessageW(hDialog, APP_UPDATE, 0, (LPARAM) this);
     }
 
-    int initCrypt() {
-        if (!CryptAcquireContextW(&hCrypt, nullptr, nullptr, PROV_RSA_AES, 0)) {
-            postError();
-            return 0;
-        }
-        return 1;
-    }
-
-    int initIV() {
-        if (!CryptGenRandom(hCrypt, 16, bufferIV)) {
-            postError();
-            return 0;
-        }
-        return 1;
-    }
-
-    int initKey() {
-        if (!CryptCreateHash(hCrypt, CALG_SHA1, 0, 0, &hHash)) {
-            postError();
-            return 0;
-        }
-        if (!CryptHashData(hHash, bufferIV, 16, 0)) {
-            postError();
-            return 0;
-        }
-        DWORD keySize = strlen(inputKey);
-        if (!CryptHashData(hHash, (PCBYTE) inputKey, keySize, 0)) {
-            postError();
-            return 0;
-        }
-        if (!CryptDeriveKey(hCrypt, CALG_AES_256, hHash, 0, &hKey)) {
-            postError();
-            return 0;
-        }
-        if (!CryptSetKeyParam(hKey, KP_IV, bufferIV, 0)) {
-            postError();
-            return 0;
-        }
-        return 1;
-    }
-
     int openFile() {
         hInput = CreateFileW(inputFile, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
         if (hInput == INVALID_HANDLE_VALUE) {
@@ -120,6 +76,17 @@ class Worker {
         return 1;
     }
 
+    void closeFile() {
+        if (hInput) {
+            CloseHandle(hInput);
+            hInput = nullptr;
+        }
+        if (hOutput) {
+            CloseHandle(hOutput);
+            hOutput = nullptr;
+        }
+    }
+
     int encryptFile() {
         if (PathMatchSpecW(inputFile, L"*.exe")) {
             postIgnore(L"不能加密exe文件");
@@ -134,23 +101,9 @@ class Worker {
     }
 
     int encryptHead() {
-        if (!initIV()) {
-            return 0;
-        }
-        if (!initKey()) {
-            return 0;
-        }
-        memcpy_s(bufferB1, 16, bufferIV, 16);
-        DWORD realSize = 16;
-        if (!CryptEncrypt(hKey, 0, 0, 0, bufferB1, &realSize, 16)) {
-            postError();
-            return 0;
-        }
-        if (!WriteFile(hOutput, bufferIV, 16, &realSize, nullptr)) {
-            postError();
-            return 0;
-        }
-        if (!WriteFile(hOutput, bufferB1, 16, &realSize, nullptr)) {
+        DWORD realSize = 0;
+        rc4.encryptData(bufferData, 16);
+        if (!WriteFile(hOutput, bufferData, 16, &realSize, nullptr)) {
             postError();
             return 0;
         }
@@ -164,21 +117,10 @@ class Worker {
             return 0;
         }
         if (realSize == 0) {
-            if (!CryptEncrypt(hKey, 0, 1, 0, bufferData, &realSize, 8000)) {
-                postError();
-                return 0;
-            }
-            if (!WriteFile(hOutput, bufferData, realSize, &realSize, nullptr)) {
-                postError();
-                return 0;
-            }
             postSuccess();
             return 0;
         }
-        if (!CryptEncrypt(hKey, 0, 0, 0, bufferData, &realSize, 8000)) {
-            postError();
-            return 0;
-        }
+        rc4.encryptData(bufferData, realSize);
         if (!WriteFile(hOutput, bufferData, realSize, &realSize, nullptr)) {
             postError();
             return 0;
@@ -254,21 +196,10 @@ class Worker {
             return 0;
         }
         if (realSize == 0) {
-            if (!CryptDecrypt(hKey, 0, 1, 0, bufferData, &realSize)) {
-                postError();
-                return 0;
-            }
-            if (!WriteFile(hOutput, bufferData, realSize, &realSize, nullptr)) {
-                postError();
-                return 0;
-            }
             postSuccess();
             return 0;
         }
-        if (!CryptDecrypt(hKey, 0, 0, 0, bufferData, &realSize)) {
-            postError();
-            return 0;
-        }
+        rc4.encryptData(bufferData, realSize);
         if (!WriteFile(hOutput, bufferData, realSize, &realSize, nullptr)) {
             postError();
             return 0;
@@ -298,29 +229,6 @@ class Worker {
                 loopSize = 0;
                 postProgress(realSize * 100.0 / fileSize);
             }
-        }
-    }
-
-    void releaseWorker() {
-        if (hHash) {
-            CryptDestroyHash(hHash);
-            hHash = 0;
-        }
-        if (hKey) {
-            CryptDestroyKey(hKey);
-            hKey = 0;
-        }
-        if (hCrypt) {
-            CryptReleaseContext(hCrypt, 0);
-            hCrypt = 0;
-        }
-        if (hInput) {
-            CloseHandle(hInput);
-            hInput = nullptr;
-        }
-        if (hOutput) {
-            CloseHandle(hOutput);
-            hOutput = nullptr;
         }
     }
 
