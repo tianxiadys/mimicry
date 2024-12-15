@@ -57,7 +57,7 @@ class Worker {
             }
             fileSize = GetFileSize(hInput, nullptr);
             if (fileSize == 0) {
-                postIgnore(L"输入文件长度为零");
+                postSuccess(L"输入文件长度为零");
                 return 0;
             }
         }
@@ -96,11 +96,11 @@ class Worker {
 
     int encryptPath() {
         if (PathMatchSpecW(inputFile, L"*.exe")) {
-            postIgnore(L"不能加密可执行文件");
+            postSuccess(L"不能加密可执行文件");
             return 0;
         }
         if (PathMatchSpecW(inputFile, L"*.1")) {
-            postIgnore(L"不能重复加密");
+            postSuccess(L"不能重复加密");
             return 0;
         }
         wcscat_s(outputFile, L".1");
@@ -122,7 +122,7 @@ class Worker {
             return 0;
         }
         if (realSize == 0) {
-            postSuccess();
+            postSuccess(L"成功");
             return 0;
         }
         rc4.encryptData(bufferData, realSize);
@@ -134,7 +134,7 @@ class Worker {
 
     int decryptPath() {
         if (!PathMatchSpecW(inputFile, L"*.1")) {
-            postIgnore(L"不是加密文件");
+            postSuccess(L"不是加密文件");
             return 0;
         }
         PathRemoveExtensionW(outputFile);
@@ -147,11 +147,11 @@ class Worker {
             return 0;
         }
         if (readSize != 16) {
-            postError(L"加密文件长度太短");
+            postMessage(L"加密文件长度太短");
             return 0;
         }
         if (!rc4.verifyZero(bufferData, 16)) {
-            postError(L"密码错误");
+            postMessage(L"密码错误");
             return 0;
         }
         return 1;
@@ -162,16 +162,9 @@ class Worker {
         postMessage();
     }
 
-    void postSuccess() {
+    void postSuccess(PCWSTR message) {
         success = 1;
-        wcscpy_s(column2, L"成功");
-        postMessage();
-    }
-
-    void postIgnore(PCWSTR message) {
-        success = 1;
-        swprintf_s(column2, L"忽略：%s", message);
-        postMessage();
+        postMessage(message);
     }
 
     void postError() {
@@ -180,8 +173,8 @@ class Worker {
         postMessage();
     }
 
-    void postError(PCWSTR message) {
-        swprintf_s(column2, L"错误：%s", message);
+    void postMessage(PCWSTR message) {
+        wcscpy_s(column2, message);
         postMessage();
     }
 
