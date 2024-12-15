@@ -11,10 +11,10 @@ class Worker {
     HANDLE hOutput = nullptr;
     DWORD fileSize = 0;
     WCHAR inputFile[260] = {};
+    CHAR inputKey[48] = {};
     WCHAR outputFile[260] = {};
-    CHAR inputKey[144] = {};
     BYTE bufferIV[16] = {};
-    BYTE bufferKey[160] = {};
+    BYTE bufferB1[16] = {};
     BYTE bufferData[8000] = {};
 
     static WINAPI DWORD staticMain(PVOID input) {
@@ -27,6 +27,15 @@ class Worker {
     void workerMain() {
         if (!initCrypt()) {
             return;
+        }
+        if (encrypt) {
+            if (!encryptHead()) {
+                return;
+            }
+        } else {
+            if (!decryptHead()) {
+                return;
+            }
         }
     }
 
@@ -61,12 +70,25 @@ class Worker {
         return 1;
     }
 
-    int initKey(PCBYTE pKey, int size) {
+    int initIV() {
+        if (!CryptGenRandom(hCrypt, 16, bufferIV)) {
+            postError();
+            return 0;
+        }
+        return 1;
+    }
+
+    int initKey() {
         if (!CryptCreateHash(hCrypt, CALG_SHA1, 0, 0, &hHash)) {
             postError();
             return 0;
         }
-        if (!CryptHashData(hHash, pKey, size, 0)) {
+        if (!CryptHashData(hHash, bufferIV, 16, 0)) {
+            postError();
+            return 0;
+        }
+        DWORD keySize = strlen(inputKey);
+        if (!CryptHashData(hHash, (PCBYTE) inputKey, keySize, 0)) {
             postError();
             return 0;
         }
@@ -78,23 +100,6 @@ class Worker {
         if (!CryptSetKeyParam(hKey, KP_MODE, (PCBYTE) &mode, 0)) {
             postError();
             return 0;
-        }
-        return 1;
-    }
-
-    int initIV(PCBYTE pIV, int size) {
-        if (pIV != nullptr) {
-            if (size == 16) {
-                memcpy(bufferIV, pIV, 16);
-            } else {
-                postError(L"IV长度错误");
-                return 0;
-            }
-        } else {
-            if (!CryptGenRandom(hCrypt, 16, bufferIV)) {
-                postError();
-                return 0;
-            }
         }
         if (!CryptSetKeyParam(hKey, KP_IV, bufferIV, 0)) {
             postError();
@@ -122,8 +127,32 @@ class Worker {
         return 1;
     }
 
+    int encryptHead() {
+        if (!initIV()) {
+            return 0;
+        }
+        if (!initKey()) {
+            return 0;
+        }
+        memcpy_s(bufferB1, 16, bufferIV, 16);
+        DWORD realSize = 16;
+        if (!CryptEncrypt(hKey, 0, 0, 0, bufferB1, &realSize, 16)) {
+            postError();
+            return 0;
+        }
+        if (!WriteFile(hOutput, bufferIV, 16, &realSize, nullptr)) {
+            postError();
+            return 0;
+        }
+        if (!WriteFile(hOutput, bufferB1, 16, &realSize, nullptr)) {
+            postError();
+            return 0;
+        }
+        return 1;
+    }
+
     int encryptBlock() {
-        DWORD realSize = 8000;
+        DWORD realSize = 0;
         if (!ReadFile(hInput, bufferData, 8000, &realSize, nullptr)) {
             postError();
             return 0;
@@ -143,8 +172,35 @@ class Worker {
         return 1;
     }
 
+    int decryptHead() {
+        DWORD readSize = 0;
+        if (!ReadFile(hInput, bufferData, 32, &readSize, nullptr)) {
+            postError();
+            return 0;
+        }
+        if (readSize != 32) {
+            postError(L"加密文件长度太短");
+            return 0;
+        }
+        memcpy_s(bufferIV, 16, bufferData, 16);
+        memcpy_s(bufferB1, 16, bufferData + 16, 16);
+        if (!initKey()) {
+            return 0;
+        }
+        readSize = 16;
+        if (!CryptDecrypt(hKey, 0, 0, 0, bufferB1, &readSize)) {
+            postError();
+            return 0;
+        }
+        if (memcmp(bufferIV, bufferB1, 16) != 0) {
+            postError(L"密码错误");
+            return 0;
+        }
+        return 1;
+    }
+
     int decryptBlock() {
-        DWORD realSize = 8000;
+        DWORD realSize = 0;
         if (!ReadFile(hInput, bufferData, 8000, &realSize, nullptr)) {
             postError();
             return 0;
